@@ -9,7 +9,6 @@ export default function TestPage() {
   const [cy, setCy] = useState(null);
   const [query, setQuery] = useState("");
 
-  // ✅ 그래프 데이터 불러오기 함수
   const loadGraphData = async (
     cyInstance,
     url,
@@ -30,7 +29,7 @@ export default function TestPage() {
 
       const data = await response.json();
       cyInstance.elements().remove();
-      cyInstance.add([...data.nodes, ...data.edges]); // ✅ 배열로 넘기기
+      cyInstance.add([...data.nodes, ...data.edges]);
       cyInstance.layout({ name: "cose", animate: true, padding: 30 }).run();
 
       console.log("그래프 로드 완료:", data);
@@ -39,7 +38,6 @@ export default function TestPage() {
     }
   };
 
-  // ✅ 최초 한 번만 cytoscape 초기화
   useEffect(() => {
     if (!cyRef.current) return;
 
@@ -49,47 +47,80 @@ export default function TestPage() {
         {
           selector: "node",
           style: {
-            "background-color": "#666",
-            label: (ele) => ele.data("name") || ele.data("id") || ele.id(),
-            "font-size": "10px",
-            color: "#333",
-            "text-valign": "bottom",
+            label: (ele) =>
+              ele.data("name") ||
+              ele.data("title") ||
+              ele.data("id") ||
+              ele.id(),
+            "text-valign": "center",
             "text-halign": "center",
-            "text-margin-y": "5px",
+            "font-size": "4px",
+            color: "#333",
+            width: "20px",
+            height: "20px",
+            "text-wrap": "wrap",
+            "text-max-width": "20px",
+          },
+        },
+        {
+          selector: "node.Person",
+          style: {
+            "background-color": "#FEE135",
+            shape: "ellipse",
+          },
+        },
+        {
+          selector: "node.Director",
+          style: {
+            "background-color": "#E75480",
+            shape: "ellipse",
+          },
+        },
+        {
+          selector: "node.Movie",
+          style: {
+            "background-color": "#4caf50",
+            shape: "rectangle",
           },
         },
         {
           selector: "edge",
           style: {
-            width: 2,
+            width: 0.4,
             "line-color": "#ccc",
             "target-arrow-color": "#ccc",
             "target-arrow-shape": "triangle",
-            "curve-style": "bezier",
+            "arrow-scale": "0.4",
+            "curve-style": "taxi",
             label: (ele) => ele.data("type") || "",
-            "font-size": "8px",
+            "font-size": "4px",
             color: "#555",
             "edge-text-rotation": "autorotate",
+            "text-background-shape": "rectangle",
+            "text-background-opacity": 1,
+            "text-background-color": "#fff",
           },
         },
       ],
       layout: {
-        name: "cose",
+        name: "cose", // preset
         animate: true,
         padding: 30,
       },
     });
 
-    setCy(cyInstance); // 상태로 저장
+    setCy(cyInstance);
     loadGraphData(cyInstance, "/api/graph");
 
-    // 노드 클릭 이벤트 예시 (선택)
     cyInstance.on("tap", "node", (evt) => {
-      console.log("클릭된 노드 정보:", evt.target.data());
+      console.log("클릭된 노드 정보:", evt.target.data(), evt.target.classes());
+    });
+
+    cyInstance.on("tap", "edge", (evt) => {
+      console.log("클릭된 edge 정보:", evt.target.data());
     });
   }, []);
 
-  // ✅ 쿼리 실행 버튼
   const handleQueryBtn = () => {
     const trimmed = query.trim();
     if (!trimmed) return alert("Cypher 쿼리를 입력해주세요.");
@@ -98,7 +129,6 @@ export default function TestPage() {
     loadGraphData(cy, "/api/query", "POST", { query: trimmed });
   };
 
-  // ✅ 초기 그래프 보기 버튼
   const handleResetBtn = () => {
     if (!cy) return alert("그래프가 아직 준비되지 않았습니다.");
     setQuery("");
