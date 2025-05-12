@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "cytoscape": "^3.32.0",
+    "jotai": "^2.12.4",
     "neo4j-driver": "^5.28.1",
     "next": "15.3.2",
     "react": "^19.0.0",

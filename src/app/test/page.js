@@ -3,11 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import styles from "../page.module.css";
+import { useAtom } from "jotai";
+import { graphDataAtom } from "@/lib/graphAtoms";
 
 export default function TestPage() {
   const cyRef = useRef(null);
   const [cy, setCy] = useState(null);
   const [query, setQuery] = useState("");
+  const [graphData, setGraphData] = useAtom(graphDataAtom);
 
   const loadGraphData = async (
     cyInstance,
@@ -28,6 +31,8 @@ export default function TestPage() {
       if (!response.ok) throw new Error(`서버 오류: ${response.statusText}`);
 
       const data = await response.json();
+      setGraphData(data);
+
       cyInstance.elements().remove();
       cyInstance.add([...data.nodes, ...data.edges]);
       cyInstance.layout({ name: "cose", animate: true, padding: 30 }).run();
@@ -149,6 +154,11 @@ export default function TestPage() {
         <button onClick={handleResetBtn}>초기 그래프 보기</button>
       </div>
       <div id="cy" ref={cyRef} className={styles.cy}></div>
+
+      <div>
+        <p>node 수: {graphData.nodes.length}</p>
+        <p>edge 수: {graphData.edges.length}</p>
+      </div>
     </div>
   );
 }
