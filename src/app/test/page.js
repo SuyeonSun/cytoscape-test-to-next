@@ -10,6 +10,7 @@ import { graphDataAtom } from "@/lib/graphAtoms";
 export default function TestPage() {
   const [cy, setCy] = useState(null);
   const [graphData, setGraphData] = useAtom(graphDataAtom);
+  const [hoveredNode, setHoveredNode] = useState(null);
 
   const loadGraph = async (query = null) => {
     const res = await fetch(query ? "/api/query" : "/api/graph", {
@@ -32,8 +33,12 @@ export default function TestPage() {
     <div>
       <h1>Neo4j Data Visualization</h1>
       <QueryForm onQuery={loadGraph} onReset={() => loadGraph(null)} />
-      <GraphViewer onReady={setCy} />
-      <GraphSummary />
+      <GraphViewer
+        onReady={setCy}
+        onHover={setHoveredNode}
+        onUnhover={() => setHoveredNode(null)}
+      />
+      <GraphSummary hoveredNode={hoveredNode} />
     </div>
   );
 }

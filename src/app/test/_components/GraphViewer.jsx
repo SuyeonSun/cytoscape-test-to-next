@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { graphDataAtom } from "@/lib/graphAtoms";
 import styles from "../_components/graphViewer.module.css";
 
-export default function GraphViewer({ onReady }) {
+export default function GraphViewer({ onReady, onHover, onUnhover }) {
   const cyRef = useRef(null);
   const [graphData] = useAtom(graphDataAtom);
 
@@ -56,6 +56,16 @@ export default function GraphViewer({ onReady }) {
           },
         },
         {
+          selector: "node.hover",
+          style: {
+            "border-width": 2,
+            "border-color": "#ffa500",
+            "background-color": "#ffe0b2", // 강조 효과
+            width: "26px",
+            height: "26px",
+          },
+        },
+        {
           selector: "edge",
           style: {
             width: 0.4,
@@ -89,6 +99,18 @@ export default function GraphViewer({ onReady }) {
 
     cy.on("tap", "edge", (evt) => {
       console.log("엣지 클릭:", evt.target.data());
+    });
+
+    cy.on("mouseover", "node", (evt) => {
+      const node = evt.target;
+      node.addClass("hover");
+      onHover?.(evt.target.data());
+    });
+
+    cy.on("mouseout", "node", (evt) => {
+      const node = evt.target;
+      node.removeClass("hover");
+      onUnhover?.();
     });
 
     onReady?.(cy);
