@@ -33,7 +33,6 @@ export default function TestPage() {
 
   return (
     <div className={styles["page-container"]}>
-      <h1>Neo4j Data Visualization</h1>
       <QueryForm onQuery={loadGraph} onReset={() => loadGraph(null)} />
       <div style={{ display: "flex" }}>
         <GraphViewer
@@ -41,7 +40,7 @@ export default function TestPage() {
           onHover={setHoveredNode}
           onUnhover={() => setHoveredNode(null)}
         />
-        <GraphSummary hoveredNode={hoveredNode} />
+        {/* <GraphSummary hoveredNode={hoveredNode} /> */}
       </div>
     </div>
   );

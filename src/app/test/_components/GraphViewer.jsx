@@ -1,12 +1,16 @@
 "use client";
 
 import cytoscape from "cytoscape";
+import cxtmenu from "cytoscape-cxtmenu";
+
 import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 import { graphDataAtom } from "@/lib/graphAtoms";
 import styles from "../_components/graphViewer.module.css";
 
 export default function GraphViewer({ onReady, onHover, onUnhover }) {
+  cytoscape.use(cxtmenu);
+
   const cyRef = useRef(null);
   const [graphData] = useAtom(graphDataAtom);
 
@@ -19,11 +23,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         {
           selector: "node",
           style: {
-            label: (ele) =>
-              ele.data("name") ||
-              ele.data("title") ||
-              ele.data("id") ||
-              ele.id(),
+            label: (ele) => ele.data("name"),
             "text-valign": "center",
             "text-halign": "center",
             "font-size": "4px",
@@ -35,39 +35,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          selector: "node.Actor",
-          style: {
-            "background-color": "#ffb74d",
-            shape: "ellipse",
-          },
-        },
-        {
-          selector: "node.Director",
-          style: {
-            "background-color": "#f48fb1",
-            shape: "ellipse",
-          },
-        },
-        {
-          selector: "node.Movie",
-          style: {
-            "background-color": "#81c784",
-            shape: "rectangle",
-          },
-        },
-        {
-          selector: "node.hover",
-          style: {
-            "border-width": 3,
-            "border-color": "#00BFFF",
-            width: "30px",
-            height: "30px",
-            transform: "scale(1.1)",
-            "box-shadow": "0 0 10px rgba(0, 191, 255, 0.8)",
-            transition: "all 0.3s ease",
-          },
-        },
-        {
           selector: "edge",
           style: {
             width: 0.4,
@@ -75,7 +42,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "target-arrow-color": "#ccc",
             "target-arrow-shape": "triangle",
             "arrow-scale": "0.4",
-            "curve-style": "taxi",
+            "curve-style": "straight",
             label: (ele) => ele.data("type") || "",
             "font-size": "4px",
             color: "#555",
@@ -88,9 +55,47 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       ],
     });
 
+    // cxtmenu
+    cy.cxtmenu({
+      selector: "node",
+      commands: [
+        {
+          content: "👁 숨기기",
+          select: function (ele) {
+            ele.hide();
+            ele.connectedEdges().hide();
+          },
+        },
+        {
+          content: "⛓ 확장하기",
+          select: function (ele) {
+            console.log("확장 실행:", ele.id());
+            // 예시용: 실제로는 fetch()로 데이터 로딩 후 cy.add()
+          },
+        },
+        {
+          content: "❌ 닫기",
+          select: function () {
+            // 메뉴 닫기 (기본 동작)
+          },
+        },
+      ],
+      fillColor: "rgba(255, 255, 255, 0.9)",
+      activeFillColor: "rgba(100, 100, 255, 0.3)",
+      activePadding: 8,
+      indicatorSize: 16,
+      separatorWidth: 2,
+      spotlightPadding: 4,
+      minSpotlightRadius: 20,
+      maxSpotlightRadius: 40,
+      openMenuEvents: "cxttap",
+      itemColor: "#333",
+      itemTextShadowColor: "#fff",
+    });
+
     cy.add([...graphData.nodes, ...graphData.edges]);
     cy.layout({
-      name: "cose", // 반드시 지정!
+      name: "cose",
       animate: true,
       padding: 30,
     }).run();
