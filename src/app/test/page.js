@@ -7,6 +7,8 @@ import QueryForm from "./_components/QueryForm";
 import { useAtom } from "jotai";
 import { graphDataAtom } from "@/lib/graphAtoms";
 
+import styles from "./testPage.module.css";
+
 export default function TestPage() {
   const [cy, setCy] = useState(null);
   const [graphData, setGraphData] = useAtom(graphDataAtom);
@@ -30,15 +32,17 @@ export default function TestPage() {
   }, []);
 
   return (
-    <div>
+    <div className={styles["page-container"]}>
       <h1>Neo4j Data Visualization</h1>
       <QueryForm onQuery={loadGraph} onReset={() => loadGraph(null)} />
-      <GraphViewer
-        onReady={setCy}
-        onHover={setHoveredNode}
-        onUnhover={() => setHoveredNode(null)}
-      />
-      <GraphSummary hoveredNode={hoveredNode} />
+      <div style={{ display: "flex" }}>
+        <GraphViewer
+          onReady={setCy}
+          onHover={setHoveredNode}
+          onUnhover={() => setHoveredNode(null)}
+        />
+        <GraphSummary hoveredNode={hoveredNode} />
+      </div>
     </div>
   );
 }

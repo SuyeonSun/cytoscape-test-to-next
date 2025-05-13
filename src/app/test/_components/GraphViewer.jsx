@@ -35,34 +35,36 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          selector: "node.Person",
+          selector: "node.Actor",
           style: {
-            "background-color": "#FEE135",
+            "background-color": "#ffb74d",
             shape: "ellipse",
           },
         },
         {
           selector: "node.Director",
           style: {
-            "background-color": "#E75480",
+            "background-color": "#f48fb1",
             shape: "ellipse",
           },
         },
         {
           selector: "node.Movie",
           style: {
-            "background-color": "#4caf50",
+            "background-color": "#81c784",
             shape: "rectangle",
           },
         },
         {
           selector: "node.hover",
           style: {
-            "border-width": 2,
-            "border-color": "#ffa500",
-            "background-color": "#ffe0b2", // 강조 효과
-            width: "26px",
-            height: "26px",
+            "border-width": 3,
+            "border-color": "#00BFFF",
+            width: "30px",
+            height: "30px",
+            transform: "scale(1.1)",
+            "box-shadow": "0 0 10px rgba(0, 191, 255, 0.8)",
+            transition: "all 0.3s ease",
           },
         },
         {

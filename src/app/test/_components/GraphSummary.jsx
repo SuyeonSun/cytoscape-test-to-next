@@ -2,6 +2,8 @@
 import { useAtomValue } from "jotai";
 import { graphDataAtom } from "@/lib/graphAtoms";
 
+import styles from "./graphSummary.module.css";
+
 export default function GraphSummary({ hoveredNode }) {
   const graph = useAtomValue(graphDataAtom);
 
@@ -13,7 +15,6 @@ export default function GraphSummary({ hoveredNode }) {
     return acc;
   }, {});
 
-  // 관계 타입별 카운트
   const relTypeCounts = graph.edges.reduce((acc, edge) => {
     const type = edge.data.type || "Unknown";
     acc[type] = (acc[type] || 0) + 1;
@@ -22,54 +23,59 @@ export default function GraphSummary({ hoveredNode }) {
 
   if (hoveredNode) {
     return (
-      <div>
-        <h2>Node Info</h2>
-        <p>
-          <strong>id:</strong> {hoveredNode.id}
-        </p>
-        <p>
-          <strong>{hoveredNode.name ? "name" : "title"}:</strong>
-          {hoveredNode.name || hoveredNode.title}
-        </p>
-        <p>
-          <strong>labels:</strong> {(hoveredNode.labels || []).join(", ")}
-        </p>
+      <div className={styles.summary}>
+        <p className={styles["summary-title"]}>Node properties</p>
+        <div className={styles.labels}>
+          {hoveredNode.labels &&
+            hoveredNode.labels.map((label, index) => (
+              <span key={index} className={styles[label]}>
+                {label}
+              </span>
+            ))}
+        </div>
+        <div className={styles["content-cotainer"]}>
+          <span className={styles["content-title"]}>id: </span>
+          <span>{hoveredNode.id}</span>
+        </div>
+        <div className={styles["content-cotainer"]}>
+          <span className={styles["content-title"]}>
+            {hoveredNode.name ? "name" : "title"}:
+          </span>
+          <span>{hoveredNode.name || hoveredNode.title}</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2>Overview</h2>
-
-      <div>
-        <h3>Node labels</h3>
-        <div>
-          <span>* ({graph.nodes.length})</span>
-          {Object.entries(labelCounts).map(([label, count]) => (
-            <span key={label}>
-              {label} ({count})
-            </span>
-          ))}
-        </div>
+    <div className={styles.summary}>
+      <p className={styles["summary-title"]}>Overview</p>
+      <div className={styles.labels}>
+        <p className={styles["content-title"]}>Node labels</p>
+        <span className={styles.default}>* ({graph.nodes.length})</span>
+        {Object.entries(labelCounts).map(([label, count]) => (
+          <span key={label} className={styles[label]}>
+            {label} ({count})
+          </span>
+        ))}
       </div>
 
-      <div>
-        <h3>Relationship types</h3>
-        <div>
-          <span>* ({graph.edges.length})</span>
-          {Object.entries(relTypeCounts).map(([type, count]) => (
-            <span key={type}>
-              {type} ({count})
-            </span>
-          ))}
-        </div>
+      <div className={styles.relationships}>
+        <p className={styles["content-title"]}>Relationship types</p>
+        <span className={styles.default}>* ({graph.edges.length})</span>
+        {Object.entries(relTypeCounts).map(([type, count]) => (
+          <span key={type} className={styles[type]}>
+            {type} ({count})
+          </span>
+        ))}
       </div>
 
-      <p>
-        Displaying {graph.nodes.length} nodes, {graph.edges.length}{" "}
-        relationships.
-      </p>
+      <div className={styles["summary-footer"]}>
+        <p>
+          Displaying {graph.nodes.length} nodes, {graph.edges.length}
+          relationships.
+        </p>
+      </div>
     </div>
   );
 }
