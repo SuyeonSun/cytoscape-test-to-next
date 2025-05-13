@@ -60,7 +60,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       selector: "node",
       commands: [
         {
-          content: "❌",
+          content: "숨김",
           select: function (ele) {
             ele.hide();
             ele.connectedEdges().hide();
@@ -68,7 +68,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          content: "➕",
+          content: "확장",
           openMenuEvents: "tap",
           select: function (ele) {
             const connected = ele.connectedEdges().connectedNodes();
@@ -86,13 +86,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          content: "❌",
+          content: "닫기",
           select: function () {
             // 메뉴 닫기 (기본 동작)
           },
         },
         {
-          content: "…",
+          content: "정보",
           select: function (ele) {
             const connectedEdges = ele.connectedEdges();
             const connectedNodes = connectedEdges
@@ -107,17 +107,19 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
       ],
-      openMenuEvents: "tap",
-      fillColor: "#F4F4F4",
-      activeFillColor: "rgba(100, 100, 255, 0.3)",
-      activePadding: 2, // 메뉴 항목 내부 여백 최소화
-      indicatorSize: 16, // 마우스 방향 표시 줄임
-      separatorWidth: 2, // 구분선
-      spotlightPadding: 8,
-      minSpotlightRadius: 3,
-      maxSpotlightRadius: 3,
-      itemColor: "#333",
-      itemTextShadowColor: "#fff",
+      openMenuEvents: "tap", // 좌클릭 대응
+      fillColor: "#eaeaea", // 배경 회색
+      activeFillColor: "#ccc", // 선택 시 하이라이트
+      activePadding: 5,
+      indicatorSize: 8,
+      separatorWidth: 2,
+      spotlightPadding: 4,
+      menuRadius: 48,
+      spotlightRadius: 22, // 중앙 원 크기
+      minSpotlightRadius: 22,
+      maxSpotlightRadius: 22,
+      itemColor: "#444", // 아이콘 색상
+      itemTextShadowColor: "transparent",
     });
 
     cy.add([...graphData.nodes, ...graphData.edges]);
