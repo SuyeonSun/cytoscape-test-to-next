@@ -63,26 +63,50 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           content: "숨김",
           select: function (ele) {
             ele.hide();
-            ele.connectedEdges().hide();
+            ele.connectedEdges().forEach((edge) => edge.hide());
+            // ele.connectedEdges().hide();
             ele.data("isHidden", true); // 선택적으로 hidden 상태 표시
           },
         },
         {
           content: "확장",
-          openMenuEvents: "tap",
           select: function (ele) {
-            const connected = ele.connectedEdges().connectedNodes();
-            const edges = ele.connectedEdges();
+            const visited = new Set();
+            const queue = [{ node: ele, depth: 0 }];
 
-            connected.forEach((n) => {
-              if (!n.visible()) n.show();
-            });
+            while (queue.length > 0) {
+              const { node, depth } = queue.shift();
+              const nodeId = node.id();
+              if (visited.has(nodeId)) continue;
+              visited.add(nodeId);
 
-            edges.forEach((e) => {
-              if (!e.visible()) e.show();
-            });
+              const isHidden = node.data("isHidden");
 
-            console.log("✅ 연결된 노드와 엣지 복원 완료");
+              // ✅ depth 0~1이면 숨김 상관없이 복원
+              // ✅ depth 2 이상이면 숨김이면 skip
+              if (depth <= 1 || !isHidden) {
+                node.show();
+                node.data("isHidden", false);
+              } else {
+                console.log(`❌ depth ${depth} 노드 ${nodeId}는 숨김이라 skip`);
+                continue;
+              }
+
+              const edges = node.connectedEdges();
+              edges.forEach((edge) => {
+                edge.show();
+
+                edge.connectedNodes().forEach((nextNode) => {
+                  if (!visited.has(nextNode.id())) {
+                    queue.push({ node: nextNode, depth: depth + 1 });
+                  }
+                });
+              });
+            }
+
+            console.log(
+              "✅ 확장 완료 (직접 연결된 숨김 노드는 복원, 간접 숨김 노드는 제외)"
+            );
           },
         },
         {
