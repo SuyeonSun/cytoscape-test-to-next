@@ -1,7 +1,7 @@
 "use client";
 
 import cytoscape from "cytoscape";
-import cxtmenu from "cytoscape-cxtmenu";
+import cxtmenu from "@/lib/cytoscapeWithCxtmenu";
 
 import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
@@ -9,14 +9,14 @@ import { graphDataAtom } from "@/lib/graphAtoms";
 import styles from "../_components/graphViewer.module.css";
 
 export default function GraphViewer({ onReady, onHover, onUnhover }) {
-  cytoscape.use(cxtmenu);
-
+  if (!cytoscape.prototype.hasOwnProperty("cxtmenu")) {
+    cytoscape.use(cxtmenu);
+  }
   const cyRef = useRef(null);
   const [graphData] = useAtom(graphDataAtom);
 
   useEffect(() => {
     if (!cyRef.current) return;
-
     const cy = cytoscape({
       container: cyRef.current,
       style: [
@@ -64,13 +64,25 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           select: function (ele) {
             ele.hide();
             ele.connectedEdges().hide();
+            ele.data("isHidden", true); // 선택적으로 hidden 상태 표시
           },
         },
         {
           content: "⛓ 확장하기",
+          openMenuEvents: "tap", // click
           select: function (ele) {
-            console.log("확장 실행:", ele.id());
-            // 예시용: 실제로는 fetch()로 데이터 로딩 후 cy.add()
+            const connected = ele.connectedEdges().connectedNodes();
+            const edges = ele.connectedEdges();
+
+            connected.forEach((n) => {
+              if (!n.visible()) n.show();
+            });
+
+            edges.forEach((e) => {
+              if (!e.visible()) e.show();
+            });
+
+            console.log("✅ 연결된 노드와 엣지 복원 완료");
           },
         },
         {
