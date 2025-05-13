@@ -60,7 +60,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       selector: "node",
       commands: [
         {
-          content: "👁 숨기기",
+          content: "❌",
           select: function (ele) {
             ele.hide();
             ele.connectedEdges().hide();
@@ -68,8 +68,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          content: "⛓ 확장하기",
-          openMenuEvents: "tap", // click
+          content: "➕",
+          openMenuEvents: "tap",
           select: function (ele) {
             const connected = ele.connectedEdges().connectedNodes();
             const edges = ele.connectedEdges();
@@ -86,21 +86,36 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           },
         },
         {
-          content: "❌ 닫기",
+          content: "❌",
           select: function () {
             // 메뉴 닫기 (기본 동작)
           },
         },
+        {
+          content: "…",
+          select: function (ele) {
+            const connectedEdges = ele.connectedEdges();
+            const connectedNodes = connectedEdges
+              .connectedNodes()
+              .filter((n) => n.id() !== ele.id());
+
+            const nodeDetails = connectedNodes.map((n) => n.data());
+            const edgeDetails = connectedEdges.map((e) => e.data());
+
+            console.log("연결된 노드:", nodeDetails);
+            console.log("연결된 엣지:", edgeDetails);
+          },
+        },
       ],
-      fillColor: "rgba(255, 255, 255, 0.9)",
+      openMenuEvents: "tap",
+      fillColor: "#F4F4F4",
       activeFillColor: "rgba(100, 100, 255, 0.3)",
-      activePadding: 8,
-      indicatorSize: 16,
-      separatorWidth: 2,
-      spotlightPadding: 4,
-      minSpotlightRadius: 20,
-      maxSpotlightRadius: 40,
-      openMenuEvents: "cxttap",
+      activePadding: 2, // 메뉴 항목 내부 여백 최소화
+      indicatorSize: 16, // 마우스 방향 표시 줄임
+      separatorWidth: 2, // 구분선
+      spotlightPadding: 8,
+      minSpotlightRadius: 3,
+      maxSpotlightRadius: 3,
       itemColor: "#333",
       itemTextShadowColor: "#fff",
     });
@@ -112,25 +127,25 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       padding: 30,
     }).run();
 
-    cy.on("tap", "node", (evt) => {
-      console.log("노드 클릭:", evt.target.data());
-    });
+    // cy.on("tap", "node", (evt) => {
+    //   console.log("노드 클릭:", evt.target.data());
+    // });
 
-    cy.on("tap", "edge", (evt) => {
-      console.log("엣지 클릭:", evt.target.data());
-    });
+    // cy.on("tap", "edge", (evt) => {
+    //   console.log("엣지 클릭:", evt.target.data());
+    // });
 
-    cy.on("mouseover", "node", (evt) => {
-      const node = evt.target;
-      node.addClass("hover");
-      onHover?.(evt.target.data());
-    });
+    // cy.on("mouseover", "node", (evt) => {
+    //   const node = evt.target;
+    //   node.addClass("hover");
+    //   onHover?.(evt.target.data());
+    // });
 
-    cy.on("mouseout", "node", (evt) => {
-      const node = evt.target;
-      node.removeClass("hover");
-      onUnhover?.();
-    });
+    // cy.on("mouseout", "node", (evt) => {
+    //   const node = evt.target;
+    //   node.removeClass("hover");
+    //   onUnhover?.();
+    // });
 
     onReady?.(cy);
   }, [graphData]);
