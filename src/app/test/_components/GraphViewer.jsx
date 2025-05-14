@@ -96,41 +96,53 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           content: "확장",
           select: function (ele) {
             const visited = new Set();
-            const queue = [{ node: ele, depth: 0 }];
+            const queue = [{ node: ele, from: null }];
+            const rootId = ele.id();
 
             while (queue.length > 0) {
-              const { node, depth } = queue.shift();
+              const { node, from } = queue.shift();
               const nodeId = node.id();
               if (visited.has(nodeId)) continue;
               visited.add(nodeId);
 
-              const isHidden = node.data("isHidden");
-
-              // ✅ depth 0~1이면 숨김 상관없이 복원
-              // ✅ depth 2 이상이면 숨김이면 skip
-              if (depth <= 1 || !isHidden) {
-                node.show();
-                node.data("isHidden", false);
-              } else {
-                console.log(`❌ depth ${depth} 노드 ${nodeId}는 숨김이라 skip`);
-                continue;
-              }
-
               const edges = node.connectedEdges();
               edges.forEach((edge) => {
-                edge.show();
+                const source = edge.source();
+                const target = edge.target();
+                const isOutgoing = source.id() === nodeId;
 
-                edge.connectedNodes().forEach((nextNode) => {
-                  if (!visited.has(nextNode.id())) {
-                    queue.push({ node: nextNode, depth: depth + 1 });
+                if (isOutgoing) {
+                  const next = target;
+                  const isDirectChildOfRoot = nodeId === rootId;
+
+                  if (!isDirectChildOfRoot) {
+                    console.log(
+                      `❌ ${next.id()}는 root의 직접 자식이 아니므로 skip`
+                    );
+                    return;
                   }
-                });
+                  edge.show();
+                  next.show();
+                  next.data("isHidden", false);
+                  queue.push({ node: next, from: nodeId });
+                } else {
+                  const prev = source;
+                  const isRootTarget = target.id() === rootId;
+
+                  if (!isRootTarget && prev.data("isHidden")) {
+                    console.log(
+                      `❌ ${prev.id()}는 root의 부모지만 root의 직접 연결 아니므로 skip`
+                    );
+                    return;
+                  }
+
+                  edge.show();
+                  prev.show();
+                  prev.data("isHidden", false);
+                  queue.push({ node: prev, from: nodeId });
+                }
               });
             }
-
-            console.log(
-              "확장 완료 (직접 연결된 숨김 노드는 복원, 간접 숨김 노드는 제외)"
-            );
           },
         },
         {
