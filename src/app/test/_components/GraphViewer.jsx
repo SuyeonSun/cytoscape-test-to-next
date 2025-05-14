@@ -113,9 +113,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
                 if (isOutgoing) {
                   const next = target;
-                  const isDirectChildOfRoot = nodeId === rootId;
+                  const isRootNode = nodeId === rootId; // 지금 탐색 중인 노드가 클릭한 노드인가?
 
-                  if (!isDirectChildOfRoot) {
+                  if (!isRootNode) {
                     console.log(
                       `❌ ${next.id()}는 root의 직접 자식이 아니므로 skip`
                     );
