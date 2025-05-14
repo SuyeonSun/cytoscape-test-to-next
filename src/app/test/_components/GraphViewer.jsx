@@ -15,6 +15,20 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
   const cyRef = useRef(null);
   const [graphData] = useAtom(graphDataAtom);
 
+  function parseNeo4jInt(n) {
+    if (typeof n === "number") return n;
+    if (n && typeof n.low === "number" && typeof n.high === "number") {
+      const isNegative = n.high < 0;
+      const lowUnsigned = n.low >>> 0;
+      const highAbs = isNegative ? ~n.high + 1 : n.high;
+      // 64비트 정수 계산
+      const result = highAbs * 2 ** 32 + lowUnsigned;
+      // 음수 보정
+      return isNegative ? -result : result;
+    }
+    return 0;
+  }
+
   useEffect(() => {
     if (!cyRef.current) return;
     const cy = cytoscape({
@@ -37,15 +51,20 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         {
           selector: "edge",
           style: {
+            label: (ele) => {
+              const type = ele.data("type") || "";
+              const amount = parseNeo4jInt(ele.data("amount"));
+              return `${type}\n${amount}`;
+            },
             width: 0.4,
+            "text-wrap": "wrap",
             "line-color": "#ccc",
             "target-arrow-color": "#ccc",
             "target-arrow-shape": "triangle",
             "arrow-scale": "0.4",
             "curve-style": "straight",
-            label: (ele) => ele.data("type") || "",
             "font-size": "4px",
-            color: "#555",
+            color: "#d62828",
             "edge-text-rotation": "autorotate",
             "text-background-shape": "rectangle",
             "text-background-opacity": 1,
@@ -105,7 +124,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             }
 
             console.log(
-              "✅ 확장 완료 (직접 연결된 숨김 노드는 복원, 간접 숨김 노드는 제외)"
+              "확장 완료 (직접 연결된 숨김 노드는 복원, 간접 숨김 노드는 제외)"
             );
           },
         },
@@ -157,9 +176,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     //   console.log("노드 클릭:", evt.target.data());
     // });
 
-    // cy.on("tap", "edge", (evt) => {
-    //   console.log("엣지 클릭:", evt.target.data());
-    // });
+    cy.on("tap", "edge", (evt) => {
+      console.log("엣지 클릭:", evt.target.data());
+    });
 
     // cy.on("mouseover", "node", (evt) => {
     //   const node = evt.target;

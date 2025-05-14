@@ -30,3 +30,9 @@ a {
     color-scheme: light;
   }
 }
+
+.cxtmenu-highlight {
+  background-color: #ffd966 !important;
+  border: 2px solid #facc15 !important;
+  box-shadow: 0 0 4px rgba(250, 204, 21, 0.4) !important;
+}
