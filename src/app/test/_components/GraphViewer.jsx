@@ -54,7 +54,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             label: (ele) => {
               const type = ele.data("type") || "";
               const amount = parseNeo4jInt(ele.data("amount"));
-              return `${type}\n${amount}`;
+              return `${type}\n${
+                ele.data("role") === "negative" ? "(-)" : "(+)"
+              } ${amount}`;
             },
             width: 0.4,
             "text-wrap": "wrap",
@@ -64,7 +66,10 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "arrow-scale": "0.4",
             "curve-style": "straight",
             "font-size": "4px",
-            color: "#d62828",
+            // color: "#d62828",
+            color: (ele) => {
+              return ele.data("role") === "negative" ? "#d62828" : "#2a9d8f";
+            },
             "edge-text-rotation": "autorotate",
             "text-background-shape": "rectangle",
             "text-background-opacity": 1,
