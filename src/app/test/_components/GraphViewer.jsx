@@ -29,6 +29,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     return 0;
   }
 
+  function formatExactNumber(num) {
+    const parts = num.toString().split(".");
+    const integer = Number(parts[0]).toLocaleString(); // 콤마 처리
+    const decimal = parts[1] ? "." + parts[1] : "";
+    return integer + decimal;
+  }
+
   useEffect(() => {
     if (!cyRef.current) return;
     const cy = cytoscape({
@@ -56,7 +63,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
               const amount = parseNeo4jInt(ele.data("amount"));
               return `${type}\n${
                 ele.data("role") === "negative" ? "(-)" : "(+)"
-              } ${amount}`;
+              } ${formatExactNumber(amount)}`;
             },
             width: 0.4,
             "text-wrap": "wrap",
