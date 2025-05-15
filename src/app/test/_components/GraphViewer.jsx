@@ -36,6 +36,42 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     return integer + decimal;
   }
 
+  function formatAmountWithMajorUnits(amount) {
+    if (amount === 0) return "0원";
+
+    const units = [
+      { label: "조", value: 1_0000_0000_0000 },
+      { label: "억", value: 1_0000_0000 },
+      { label: "만", value: 1_0000 },
+    ];
+    const result = [];
+    const [intStr, decimalStr = ""] = amount.toString().split("."); // 정수, 소수 분리
+    let remaining = BigInt(intStr); // 2345678901234567890n
+
+    for (const { label, value } of units) {
+      const unitVal = remaining / BigInt(value);
+      if (unitVal > 0n) {
+        result.push(`${unitVal.toString()}${label}`);
+      }
+      remaining %= BigInt(value);
+    }
+
+    const lastInt = remaining.toString(); // 나머지 원 단위
+    const decimal = decimalStr ? `.${decimalStr}` : "";
+
+    if (lastInt === "0" && decimal === "") {
+      // 0.0원
+    } else if (lastInt === "0" && decimal !== "") {
+      // 0.123원
+      result.push(`${decimal}`);
+    } else {
+      // 123.123원
+      result.push(`${lastInt}${decimal}`);
+    }
+
+    return result.join(" ") + "원";
+  }
+
   useEffect(() => {
     if (!cyRef.current) return;
     const cy = cytoscape({
@@ -63,7 +99,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
               const amount = parseNeo4jInt(ele.data("amount"));
               return `${type}\n${
                 ele.data("role") === "negative" ? "(-)" : "(+)"
-              } ${formatExactNumber(amount)}`;
+              } ${formatAmountWithMajorUnits(amount)}`;
             },
             width: 0.4,
             "text-wrap": "wrap",
