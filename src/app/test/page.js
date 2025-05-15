@@ -5,7 +5,7 @@ import GraphSummary from "./_components/GraphSummary";
 import GraphViewer from "./_components/GraphViewer";
 import QueryForm from "./_components/QueryForm";
 import { useAtom } from "jotai";
-import { graphDataAtom } from "@/lib/graphAtoms";
+import { graphDataAtom } from "@/store/graphAtoms";
 
 import styles from "./testPage.module.css";
 

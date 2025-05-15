@@ -5,8 +5,11 @@ import cxtmenu from "@/lib/cytoscapeWithCxtmenu";
 
 import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
-import { graphDataAtom } from "@/lib/graphAtoms";
+import { graphDataAtom } from "@/store/graphAtoms";
 import styles from "../_components/graphViewer.module.css";
+
+import { formatAmountWithMajorUnits } from "@/utils/formatUtils";
+import { parseNeo4jInt } from "@/utils/neo4jUtils";
 
 export default function GraphViewer({ onReady, onHover, onUnhover }) {
   if (!cytoscape.prototype.hasOwnProperty("cxtmenu")) {
@@ -14,63 +17,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
   }
   const cyRef = useRef(null);
   const [graphData] = useAtom(graphDataAtom);
-
-  function parseNeo4jInt(n) {
-    if (typeof n === "number") return n;
-    if (n && typeof n.low === "number" && typeof n.high === "number") {
-      const isNegative = n.high < 0;
-      const lowUnsigned = n.low >>> 0;
-      const highAbs = isNegative ? ~n.high + 1 : n.high;
-      // 64비트 정수 계산
-      const result = highAbs * 2 ** 32 + lowUnsigned;
-      // 음수 보정
-      return isNegative ? -result : result;
-    }
-    return 0;
-  }
-
-  function formatExactNumber(num) {
-    const parts = num.toString().split(".");
-    const integer = Number(parts[0]).toLocaleString(); // 콤마 처리
-    const decimal = parts[1] ? "." + parts[1] : "";
-    return integer + decimal;
-  }
-
-  function formatAmountWithMajorUnits(amount) {
-    if (amount === 0) return "0원";
-
-    const units = [
-      { label: "조", value: 1_0000_0000_0000 },
-      { label: "억", value: 1_0000_0000 },
-      { label: "만", value: 1_0000 },
-    ];
-    const result = [];
-    const [intStr, decimalStr = ""] = amount.toString().split("."); // 정수, 소수 분리
-    let remaining = BigInt(intStr); // 2345678901234567890n
-
-    for (const { label, value } of units) {
-      const unitVal = remaining / BigInt(value);
-      if (unitVal > 0n) {
-        result.push(`${unitVal.toString()}${label}`);
-      }
-      remaining %= BigInt(value);
-    }
-
-    const lastInt = remaining.toString(); // 나머지 원 단위
-    const decimal = decimalStr ? `.${decimalStr}` : "";
-
-    if (lastInt === "0" && decimal === "") {
-      // 0.0원
-    } else if (lastInt === "0" && decimal !== "") {
-      // 0.123원
-      result.push(`${decimal}`);
-    } else {
-      // 123.123원
-      result.push(`${lastInt}${decimal}`);
-    }
-
-    return result.join(" ") + "원";
-  }
 
   useEffect(() => {
     if (!cyRef.current) return;
@@ -109,7 +55,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "arrow-scale": "0.4",
             "curve-style": "straight",
             "font-size": "4px",
-            // color: "#d62828",
             color: (ele) => {
               return ele.data("role") === "negative" ? "#d62828" : "#2a9d8f";
             },

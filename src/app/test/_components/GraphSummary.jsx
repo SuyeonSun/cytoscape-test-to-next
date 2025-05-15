@@ -1,6 +1,6 @@
 "use client";
 import { useAtomValue } from "jotai";
-import { graphDataAtom } from "@/lib/graphAtoms";
+import { graphDataAtom } from "@/store/graphAtoms";
 
 import styles from "./graphSummary.module.css";
 
