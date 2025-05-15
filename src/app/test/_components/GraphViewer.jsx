@@ -18,6 +18,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cytoscape.use(cxtmenu);
   }
   const cyRef = useRef(null);
+  const cyInstanceRef = useRef(null); // 전역 참조
+
   const [graphData] = useAtom(graphDataAtom);
 
   let cy;
@@ -208,12 +210,38 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     //   node.removeClass("hover");
     //   onUnhover?.();
     // });
-
+    cyInstanceRef.current = cy;
     onReady?.(cy);
   }, [graphData]);
 
+  const applyRadialLayout = () => {
+    cyInstanceRef.current
+      ?.layout({
+        name: "cose",
+        animate: true,
+        padding: 30,
+      })
+      .run();
+  };
+
+  const applyMindmapLayout = () => {
+    cyInstanceRef.current
+      ?.layout({
+        name: "dagre",
+        rankDir: "RL",
+      })
+      .run();
+  };
+
   return (
     <>
+      <div style={{ marginBottom: "8px" }}>
+        <button onClick={applyRadialLayout}>🔘 방사형 레이아웃</button>
+        <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
+          🧠 마인드맵 레이아웃
+        </button>
+      </div>
+
       <div id="cy" ref={cyRef} className={styles.cy} />
     </>
   );
