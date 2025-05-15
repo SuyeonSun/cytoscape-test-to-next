@@ -185,7 +185,12 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
     cy.layout({
       name: "dagre",
-      rankDir: "RL", // Left to Right
+      rankDir: "RL",
+      nodeSep: 40,
+      rankSep: 100,
+      edgeSep: 20,
+      padding: 20,
+      animate: true,
     }).run();
 
     const root = cy.nodes().filter((node) => node.indegree() === 0)[0];
@@ -229,6 +234,11 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       ?.layout({
         name: "dagre",
         rankDir: "RL",
+        nodeSep: 40,
+        rankSep: 100,
+        edgeSep: 20,
+        padding: 20,
+        animate: true,
       })
       .run();
   };
