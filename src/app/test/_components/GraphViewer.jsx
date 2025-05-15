@@ -235,14 +235,16 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
   return (
     <>
-      <div style={{ marginBottom: "8px" }}>
-        <button onClick={applyRadialLayout}>🔘 방사형 레이아웃</button>
-        <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
-          🧠 마인드맵 레이아웃
-        </button>
-      </div>
+      <div>
+        <div style={{ marginBottom: "8px" }}>
+          <button onClick={applyRadialLayout}>🔘 방사형 레이아웃</button>
+          <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
+            🧠 마인드맵 레이아웃
+          </button>
+        </div>
 
-      <div id="cy" ref={cyRef} className={styles.cy} />
+        <div id="cy" ref={cyRef} className={styles.cy} />
+      </div>
     </>
   );
 }
