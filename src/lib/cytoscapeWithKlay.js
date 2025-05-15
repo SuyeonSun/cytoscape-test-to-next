@@ -1,4 +1,3 @@
-// lib/cytoscapeWithKlay.ts
 import cytoscape from "cytoscape";
 import klay from "cytoscape-klay";
 
