@@ -2,6 +2,7 @@
 
 import cytoscape from "cytoscape";
 import cxtmenu from "@/lib/cytoscapeWithCxtmenu";
+import klay from "@/lib/cytoscapeWithKlay";
 
 import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
@@ -171,11 +172,30 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
 
     cy.add([...graphData.nodes, ...graphData.edges]);
+
+    // cy.layout({
+    //   name: "cose",
+    //   animate: true,
+    //   padding: 30,
+    // }).run();
+
     cy.layout({
-      name: "cose",
-      animate: true,
-      padding: 30,
+      name: "klay",
+
+      padding: 20,
+      klay: {
+        direction: "LEFT", // 루트 노드가 왼쪽, 자식 노드는 오른쪽
+        edgeSpacingFactor: 0.2,
+        inLayerSpacingFactor: 0.5, // 같은 레벨 노드 간 거리
+        nodePlacement: "BRANDES_KOEPF",
+        layoutHierarchy: true,
+        spacing: 20,
+        edgeRouting: "POLYLINE",
+      },
     }).run();
+
+    const root = cy.nodes().filter((node) => node.indegree() === 0)[0];
+    console.log("루트 노드 ID:", root);
 
     // cy.on("tap", "node", (evt) => {
     //   console.log("노드 클릭:", evt.target.data());

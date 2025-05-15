@@ -9,5 +9,5 @@ export function parseNeo4jInt(n) {
     // 음수 보정
     return isNegative ? -result : result;
   }
-  return 0;
+  return n;
 }

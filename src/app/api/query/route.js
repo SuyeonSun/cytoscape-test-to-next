@@ -15,7 +15,11 @@ export async function POST(req) {
 
     const result = await session.run(query);
     const data = formatDataForCytoscape(result.records);
-    return NextResponse.json(data);
+
+    return NextResponse.json({
+      data,
+      rawRecords: result.records,
+    });
   } catch (err) {
     console.error("Query API error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
