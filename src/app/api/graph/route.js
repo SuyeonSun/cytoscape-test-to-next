@@ -5,9 +5,7 @@ export async function GET() {
   const session = driver.session({ database: process.env.NEO4J_DATABASE });
 
   try {
-    const result = await session.run(
-      "MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25"
-    );
+    const result = await session.run("MATCH (n)-[r]->(m) RETURN n, r, m");
     const data = formatDataForCytoscape(result.records);
     return NextResponse.json(data);
   } catch (err) {
