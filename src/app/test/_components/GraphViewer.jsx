@@ -1,3 +1,5 @@
+// updated full code block incorporating smooth fade-in for mindmap layout with layoutModeRef
+
 "use client";
 
 import cytoscape from "cytoscape";
@@ -18,10 +20,15 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cytoscape.use(cxtmenu);
   }
   const cyRef = useRef(null);
-  const cyInstanceRef = useRef(null); // 전역 참조
+  const cyInstanceRef = useRef(null);
   const [layoutMode, setLayoutMode] = useState("mindmap");
+  const layoutModeRef = useRef("mindmap");
 
   const [graphData] = useAtom(graphDataAtom);
+
+  useEffect(() => {
+    layoutModeRef.current = layoutMode;
+  }, [layoutMode]);
 
   useEffect(() => {
     if (!cyRef.current) return;
@@ -59,9 +66,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "target-arrow-shape": "triangle",
             "arrow-scale": "0.4",
             "font-size": "4px",
-            color: (ele) => {
-              return ele.data("role") === "negative" ? "#d62828" : "#2a9d8f";
-            },
+            color: (ele) =>
+              ele.data("role") === "negative" ? "#d62828" : "#2a9d8f",
             "edge-text-rotation": "autorotate",
             "text-background-shape": "rectangle",
             "text-background-opacity": 1,
@@ -71,17 +77,27 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       ],
     });
 
-    // cxtmenu
     cy.cxtmenu({
       selector: "node",
       commands: [
         {
           content: "숨김",
           select: function (ele) {
-            ele.hide();
-            ele.connectedEdges().forEach((edge) => edge.hide());
-            // ele.connectedEdges().hide();
-            ele.data("isHidden", true); // 선택적으로 hidden 상태 표시
+            if (layoutModeRef.current === "mindmap") {
+              console.log("===================== mindmap");
+              ele.hide();
+              ele.style("opacity", 0);
+              ele.connectedEdges().forEach((edge) => {
+                edge.style("opacity", 0);
+                edge.hide();
+              });
+              ele.data("isHidden", true);
+            } else {
+              console.log("===================== else");
+              ele.hide();
+              ele.connectedEdges().forEach((edge) => edge.hide());
+              ele.data("isHidden", true);
+            }
           },
         },
         {
@@ -105,31 +121,44 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
                 if (isOutgoing) {
                   const next = target;
-                  const isRootNode = nodeId === rootId; // 지금 탐색 중인 노드가 클릭한 노드인가?
+                  const isRootNode = nodeId === rootId;
+                  if (!isRootNode) return;
 
-                  if (!isRootNode) {
-                    console.log(
-                      `❌ ${next.id()}는 root의 직접 자식이 아니므로 skip`
-                    );
-                    return;
-                  }
                   edge.show();
+                  if (layoutModeRef.current === "mindmap") {
+                    requestAnimationFrame(() => {
+                      edge.animate({ style: { opacity: 1 }, duration: 500 });
+                    });
+                  }
+
                   next.show();
+                  if (layoutModeRef.current === "mindmap") {
+                    requestAnimationFrame(() => {
+                      next.animate({ style: { opacity: 1 }, duration: 500 });
+                    });
+                  }
+
                   next.data("isHidden", false);
                   queue.push({ node: next, from: nodeId });
                 } else {
                   const prev = source;
                   const isRootTarget = target.id() === rootId;
-
-                  if (!isRootTarget && prev.data("isHidden")) {
-                    console.log(
-                      `❌ ${prev.id()}는 root의 부모지만 root의 직접 연결 아니므로 skip`
-                    );
-                    return;
-                  }
+                  if (!isRootTarget && prev.data("isHidden")) return;
 
                   edge.show();
+                  if (layoutModeRef.current === "mindmap") {
+                    requestAnimationFrame(() => {
+                      edge.animate({ style: { opacity: 1 }, duration: 500 });
+                    });
+                  }
+
                   prev.show();
+                  if (layoutModeRef.current === "mindmap") {
+                    requestAnimationFrame(() => {
+                      prev.animate({ style: { opacity: 1 }, duration: 500 });
+                    });
+                  }
+
                   prev.data("isHidden", false);
                   queue.push({ node: prev, from: nodeId });
                 }
@@ -139,9 +168,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         },
         {
           content: "닫기",
-          select: function () {
-            // 메뉴 닫기 (기본 동작)
-          },
+          select: function () {},
         },
         {
           content: "정보",
@@ -150,54 +177,37 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             const connectedNodes = connectedEdges
               .connectedNodes()
               .filter((n) => n.id() !== ele.id());
-
-            const nodeDetails = connectedNodes.map((n) => n.data());
-            const edgeDetails = connectedEdges.map((e) => e.data());
-
-            console.log("연결된 노드:", nodeDetails);
-            console.log("연결된 엣지:", edgeDetails);
+            console.log(
+              "연결된 노드:",
+              connectedNodes.map((n) => n.data())
+            );
+            console.log(
+              "연결된 엣지:",
+              connectedEdges.map((e) => e.data())
+            );
           },
         },
       ],
-      openMenuEvents: "tap", // 좌클릭 대응
-      fillColor: "#eaeaea", // 배경 회색
-      activeFillColor: "#ccc", // 선택 시 하이라이트
+      openMenuEvents: "tap",
+      fillColor: "#eaeaea",
+      activeFillColor: "#ccc",
       activePadding: 5,
       indicatorSize: 8,
       separatorWidth: 2,
       spotlightPadding: 4,
       menuRadius: 48,
-      spotlightRadius: 22, // 중앙 원 크기
+      spotlightRadius: 22,
       minSpotlightRadius: 22,
       maxSpotlightRadius: 22,
-      itemColor: "#444", // 아이콘 색상
+      itemColor: "#444",
       itemTextShadowColor: "transparent",
     });
 
     cy.add([...graphData.nodes, ...graphData.edges]);
 
-    // const root = cy.nodes().filter((node) => node.indegree() === 0)[0];
-    // console.log("루트 노드 ID:", root);
-
-    // cy.on("tap", "node", (evt) => {
-    //   console.log("노드 클릭:", evt.target.data());
-    // });
-
     cy.on("tap", "edge", (evt) => {
       console.log("엣지 클릭:", evt.target.data());
     });
-
-    // cy.on("mouseover", "node", (evt) => {
-    //   const node = evt.target;
-    //   node.addClass("hover");
-    //   onHover?.(evt.target.data());
-    // });
-
-    // cy.on("mouseout", "node", (evt) => {
-    //   const node = evt.target;
-    //   node.removeClass("hover");
-    //   onUnhover?.();
-    // });
 
     cyInstanceRef.current = cy;
 
@@ -212,22 +222,16 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     const cy = cyInstanceRef.current;
     cy.nodes().forEach((node) => {
       node.show();
+      node.style("opacity", 1);
       node.data("isHidden", false);
     });
-    cy.edges().forEach((edge) => edge.show());
+    cy.edges().forEach((edge) => {
+      edge.show();
+      edge.style("opacity", 1);
+    });
 
-    cy?.layout({
-      name: "cose",
-      animate: true,
-      padding: 30,
-    }).run();
-
-    cy.style()
-      .selector("edge")
-      .style({
-        "curve-style": "straight",
-      })
-      .update();
+    cy.layout({ name: "cose", animate: true, padding: 30 }).run();
+    cy.style().selector("edge").style({ "curve-style": "straight" }).update();
 
     cyInstanceRef.current = cy;
     setLayoutMode("radial");
@@ -237,12 +241,16 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     const cy = cyInstanceRef.current;
     cy.nodes().forEach((node) => {
       node.show();
+      node.style("opacity", 1);
       node.data("isHidden", false);
     });
-    cy.edges().forEach((edge) => edge.show());
+    cy.edges().forEach((edge) => {
+      edge.show();
+      edge.style("opacity", 1);
+    });
 
-    cy?.layout({
-      name: "dagre",
+    cy.layout({
+      name: "dagre", // "curve-style": "round-taxi",
       rankDir: "RL",
       nodeSep: 40,
       rankSep: 100,
@@ -251,12 +259,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       animate: true,
     }).run();
 
-    cy.style()
-      .selector("edge")
-      .style({
-        "curve-style": "straight",
-      })
-      .update();
+    cy.style().selector("edge").style({ "curve-style": "round-taxi" }).update(); // "straight"
 
     cyInstanceRef.current = cy;
     setLayoutMode("dagre");
@@ -268,9 +271,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
     cy.nodes().forEach((node) => {
       node.hide();
+      node.style("opacity", 0);
       node.data("isHidden", true);
     });
-    cy.edges().forEach((edge) => edge.hide());
+    cy.edges().forEach((edge) => {
+      edge.hide();
+      edge.style("opacity", 0);
+    });
 
     const roots = cy
       .nodes()
@@ -279,11 +286,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       console.log("루트 노드를 찾을 수 없습니다.");
       return;
     }
-
-    roots.forEach((root) => {
-      root.show();
-      root.data("isHidden", false);
-    });
 
     cy.style()
       .selector("edge")
@@ -296,7 +298,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       })
       .update();
 
-    cy.layout({
+    const layout = cy.layout({
       name: "dagre",
       rankDir: "RL",
       nodeSep: 40,
@@ -304,7 +306,17 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       edgeSep: 20,
       padding: 20,
       animate: true,
-    }).run();
+    });
+
+    layout.run();
+
+    layout.on("layoutstop", () => {
+      roots.forEach((root) => {
+        root.show();
+        root.data("isHidden", false);
+        root.animate({ style: { opacity: 1 }, duration: 500 });
+      });
+    });
 
     cyInstanceRef.current = cy;
     setLayoutMode("mindmap");
@@ -323,7 +335,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           </button>
           {layoutMode}
         </div>
-
         <div id="cy" ref={cyRef} className={styles.cy} />
       </div>
     </>
