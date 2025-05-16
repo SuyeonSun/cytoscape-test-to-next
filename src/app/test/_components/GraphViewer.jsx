@@ -5,7 +5,7 @@ import cxtmenu from "@/lib/cytoscapeWithCxtmenu";
 import klay from "@/lib/cytoscapeWithKlay";
 import dagre from "@/lib/cytoscapeWithDagre";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { graphDataAtom } from "@/store/graphAtoms";
 import styles from "../_components/graphViewer.module.css";
@@ -19,13 +19,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
   }
   const cyRef = useRef(null);
   const cyInstanceRef = useRef(null); // 전역 참조
+  const [layoutMode, setLayoutMode] = useState("mindmap");
 
   const [graphData] = useAtom(graphDataAtom);
 
-  let cy;
   useEffect(() => {
     if (!cyRef.current) return;
-    cy = cytoscape({
+    const cy = cytoscape({
       container: cyRef.current,
       style: [
         {
@@ -58,7 +58,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "target-arrow-color": "#ccc",
             "target-arrow-shape": "triangle",
             "arrow-scale": "0.4",
-            "curve-style": "straight",
             "font-size": "4px",
             color: (ele) => {
               return ele.data("role") === "negative" ? "#d62828" : "#2a9d8f";
@@ -177,24 +176,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
     cy.add([...graphData.nodes, ...graphData.edges]);
 
-    // cy.layout({
-    //   name: "cose",
-    //   animate: true,
-    //   padding: 30,
-    // }).run();
-
-    cy.layout({
-      name: "dagre",
-      rankDir: "RL",
-      nodeSep: 40,
-      rankSep: 100,
-      edgeSep: 20,
-      padding: 20,
-      animate: true,
-    }).run();
-
-    const root = cy.nodes().filter((node) => node.indegree() === 0)[0];
-    console.log("루트 노드 ID:", root);
+    // const root = cy.nodes().filter((node) => node.indegree() === 0)[0];
+    // console.log("루트 노드 ID:", root);
 
     // cy.on("tap", "node", (evt) => {
     //   console.log("노드 클릭:", evt.target.data());
@@ -215,7 +198,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     //   node.removeClass("hover");
     //   onUnhover?.();
     // });
+
     cyInstanceRef.current = cy;
+
+    if (layoutMode === "radial") applyRadialLayout();
+    else if (layoutMode === "mindmap") applyMindmapLayout();
+    else if (layoutMode === "dagre") applyDagreLayout();
+
     onReady?.(cy);
   }, [graphData]);
 
@@ -241,6 +230,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       .update();
 
     cyInstanceRef.current = cy;
+    setLayoutMode("radial");
   };
 
   const applyDagreLayout = () => {
@@ -251,17 +241,15 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
     cy.edges().forEach((edge) => edge.show());
 
-    cyInstanceRef.current
-      ?.layout({
-        name: "dagre",
-        rankDir: "RL",
-        nodeSep: 40,
-        rankSep: 100,
-        edgeSep: 20,
-        padding: 20,
-        animate: true,
-      })
-      .run();
+    cy?.layout({
+      name: "dagre",
+      rankDir: "RL",
+      nodeSep: 40,
+      rankSep: 100,
+      edgeSep: 20,
+      padding: 20,
+      animate: true,
+    }).run();
 
     cy.style()
       .selector("edge")
@@ -271,11 +259,19 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       .update();
 
     cyInstanceRef.current = cy;
+    setLayoutMode("dagre");
   };
 
   const applyMindmapLayout = () => {
     const cy = cyInstanceRef.current;
     if (!cy) return;
+
+    cy.nodes().forEach((node) => {
+      node.hide();
+      node.data("isHidden", true);
+    });
+    cy.edges().forEach((edge) => edge.hide());
+
     const roots = cy
       .nodes()
       .filter((node) => node.outgoers("edge").length === 0);
@@ -283,11 +279,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       console.log("루트 노드를 찾을 수 없습니다.");
       return;
     }
-    cy.nodes().forEach((node) => {
-      node.hide();
-      node.data("isHidden", true);
-    });
-    cy.edges().forEach((edge) => edge.hide());
 
     roots.forEach((root) => {
       root.show();
@@ -316,6 +307,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     }).run();
 
     cyInstanceRef.current = cy;
+    setLayoutMode("mindmap");
   };
 
   return (
@@ -329,6 +321,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
             🧠 마인드맵 인터랙티브
           </button>
+          {layoutMode}
         </div>
 
         <div id="cy" ref={cyRef} className={styles.cy} />
