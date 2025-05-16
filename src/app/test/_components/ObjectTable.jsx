@@ -33,7 +33,6 @@ function simplifyField(field) {
 }
 
 export default function ObjectTable({ rawRecords }) {
-  console.log("======", rawRecords);
   if (!rawRecords || rawRecords.length === 0)
     return <div>데이터가 없습니다.</div>;
 
