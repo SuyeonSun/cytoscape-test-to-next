@@ -220,16 +220,37 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
   }, [graphData]);
 
   const applyRadialLayout = () => {
-    cyInstanceRef.current
-      ?.layout({
-        name: "cose",
-        animate: true,
-        padding: 30,
+    const cy = cyInstanceRef.current;
+    cy.nodes().forEach((node) => {
+      node.show();
+      node.data("isHidden", false);
+    });
+    cy.edges().forEach((edge) => edge.show());
+
+    cy?.layout({
+      name: "cose",
+      animate: true,
+      padding: 30,
+    }).run();
+
+    cy.style()
+      .selector("edge")
+      .style({
+        "curve-style": "straight",
       })
-      .run();
+      .update();
+
+    cyInstanceRef.current = cy;
   };
 
-  const applyMindmapLayout = () => {
+  const applyDagreLayout = () => {
+    const cy = cyInstanceRef.current;
+    cy.nodes().forEach((node) => {
+      node.show();
+      node.data("isHidden", false);
+    });
+    cy.edges().forEach((edge) => edge.show());
+
     cyInstanceRef.current
       ?.layout({
         name: "dagre",
@@ -241,15 +262,72 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         animate: true,
       })
       .run();
+
+    cy.style()
+      .selector("edge")
+      .style({
+        "curve-style": "straight",
+      })
+      .update();
+
+    cyInstanceRef.current = cy;
+  };
+
+  const applyMindmapLayout = () => {
+    const cy = cyInstanceRef.current;
+    if (!cy) return;
+    const roots = cy
+      .nodes()
+      .filter((node) => node.outgoers("edge").length === 0);
+    if (roots.length === 0) {
+      console.log("루트 노드를 찾을 수 없습니다.");
+      return;
+    }
+    cy.nodes().forEach((node) => {
+      node.hide();
+      node.data("isHidden", true);
+    });
+    cy.edges().forEach((edge) => edge.hide());
+
+    roots.forEach((root) => {
+      root.show();
+      root.data("isHidden", false);
+    });
+
+    cy.style()
+      .selector("edge")
+      .style({
+        "curve-style": "round-taxi",
+        "taxi-direction": "horizontal",
+        "taxi-turn": 20,
+        "taxi-turn-min-distance": 15,
+        "edge-distances": "node-position",
+      })
+      .update();
+
+    cy.layout({
+      name: "dagre",
+      rankDir: "RL",
+      nodeSep: 40,
+      rankSep: 100,
+      edgeSep: 20,
+      padding: 20,
+      animate: true,
+    }).run();
+
+    cyInstanceRef.current = cy;
   };
 
   return (
     <>
       <div>
         <div style={{ marginBottom: "8px" }}>
-          <button onClick={applyRadialLayout}>🔘 방사형 레이아웃</button>
+          <button onClick={applyRadialLayout}>기본 방사형 레이아웃</button>
+          <button onClick={applyDagreLayout} style={{ marginLeft: "8px" }}>
+            기본 dagre 레이아웃
+          </button>
           <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
-            🧠 마인드맵 레이아웃
+            🧠 마인드맵 인터랙티브
           </button>
         </div>
 
