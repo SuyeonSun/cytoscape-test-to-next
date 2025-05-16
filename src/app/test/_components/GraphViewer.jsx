@@ -127,14 +127,14 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                   edge.show();
                   if (layoutModeRef.current === "mindmap") {
                     requestAnimationFrame(() => {
-                      edge.animate({ style: { opacity: 1 }, duration: 500 });
+                      edge.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
                   next.show();
                   if (layoutModeRef.current === "mindmap") {
                     requestAnimationFrame(() => {
-                      next.animate({ style: { opacity: 1 }, duration: 500 });
+                      next.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
@@ -148,14 +148,14 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                   edge.show();
                   if (layoutModeRef.current === "mindmap") {
                     requestAnimationFrame(() => {
-                      edge.animate({ style: { opacity: 1 }, duration: 500 });
+                      edge.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
                   prev.show();
                   if (layoutModeRef.current === "mindmap") {
                     requestAnimationFrame(() => {
-                      prev.animate({ style: { opacity: 1 }, duration: 500 });
+                      prev.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
