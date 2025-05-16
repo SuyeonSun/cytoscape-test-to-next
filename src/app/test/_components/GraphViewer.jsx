@@ -1,5 +1,3 @@
-// updated full code block incorporating smooth fade-in for mindmap layout with layoutModeRef
-
 "use client";
 
 import cytoscape from "cytoscape";
@@ -14,17 +12,19 @@ import styles from "../_components/graphViewer.module.css";
 
 import { formatAmountWithMajorUnits } from "@/utils/formatUtils";
 import { parseNeo4jInt } from "@/utils/neo4jUtils";
+import { LAYOUT_MODES } from "@/constants/layoutConstant";
 
 export default function GraphViewer({ onReady, onHover, onUnhover }) {
+  const cyRef = useRef(null);
+  const cyInstanceRef = useRef(null);
+  const [layoutMode, setLayoutMode] = useState(LAYOUT_MODES.MINDMAP);
+  const layoutModeRef = useRef(LAYOUT_MODES.MINDMAP);
+
+  const [graphData] = useAtom(graphDataAtom);
+
   if (!cytoscape.prototype.hasOwnProperty("cxtmenu")) {
     cytoscape.use(cxtmenu);
   }
-  const cyRef = useRef(null);
-  const cyInstanceRef = useRef(null);
-  const [layoutMode, setLayoutMode] = useState("mindmap");
-  const layoutModeRef = useRef("mindmap");
-
-  const [graphData] = useAtom(graphDataAtom);
 
   useEffect(() => {
     layoutModeRef.current = layoutMode;
@@ -83,8 +83,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         {
           content: "숨김",
           select: function (ele) {
-            if (layoutModeRef.current === "mindmap") {
-              console.log("===================== mindmap");
+            if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
               ele.hide();
               ele.style("opacity", 0);
               ele.connectedEdges().forEach((edge) => {
@@ -93,7 +92,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
               });
               ele.data("isHidden", true);
             } else {
-              console.log("===================== else");
               ele.hide();
               ele.connectedEdges().forEach((edge) => edge.hide());
               ele.data("isHidden", true);
@@ -125,14 +123,14 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                   if (!isRootNode) return;
 
                   edge.show();
-                  if (layoutModeRef.current === "mindmap") {
+                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
                     requestAnimationFrame(() => {
                       edge.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
                   next.show();
-                  if (layoutModeRef.current === "mindmap") {
+                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
                     requestAnimationFrame(() => {
                       next.animate({ style: { opacity: 1 }, duration: 800 });
                     });
@@ -146,14 +144,14 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                   if (!isRootTarget && prev.data("isHidden")) return;
 
                   edge.show();
-                  if (layoutModeRef.current === "mindmap") {
+                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
                     requestAnimationFrame(() => {
                       edge.animate({ style: { opacity: 1 }, duration: 800 });
                     });
                   }
 
                   prev.show();
-                  if (layoutModeRef.current === "mindmap") {
+                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
                     requestAnimationFrame(() => {
                       prev.animate({ style: { opacity: 1 }, duration: 800 });
                     });
@@ -173,7 +171,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         {
           content: "통합",
           select: function (ele) {
-            console.log("통합하기 -------------");
             const visited = new Set();
             const queue = [ele];
 
@@ -190,7 +187,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
               incomingEdges.forEach((edge) => {
                 const source = edge.source();
 
-                if (layoutModeRef.current === "mindmap") {
+                if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
                   edge.hide();
                   edge.style("opacity", 0);
                   source.hide();
@@ -248,9 +245,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
     cyInstanceRef.current = cy;
 
-    if (layoutMode === "radial") applyRadialLayout();
-    else if (layoutMode === "mindmap") applyMindmapLayout();
-    else if (layoutMode === "dagre") applyDagreLayout();
+    if (layoutMode === LAYOUT_MODES.RADIAL) applyRadialLayout();
+    else if (layoutMode === LAYOUT_MODES.MINDMAP) applyMindmapLayout();
+    else if (layoutMode === LAYOUT_MODES.DAGRE) applyDagreLayout();
 
     onReady?.(cy);
   }, [graphData]);
@@ -271,7 +268,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cy.style().selector("edge").style({ "curve-style": "straight" }).update();
 
     cyInstanceRef.current = cy;
-    setLayoutMode("radial");
+    setLayoutMode(LAYOUT_MODES.RADIAL);
   };
 
   const applyDagreLayout = () => {
@@ -287,7 +284,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
 
     cy.layout({
-      name: "dagre", // "curve-style": "round-taxi",
+      name: "dagre",
       rankDir: "RL",
       nodeSep: 40,
       rankSep: 100,
@@ -299,7 +296,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cy.style().selector("edge").style({ "curve-style": "round-taxi" }).update(); // "straight"
 
     cyInstanceRef.current = cy;
-    setLayoutMode("dagre");
+    setLayoutMode(LAYOUT_MODES.DAGRE);
   };
 
   const applyMindmapLayout = () => {
@@ -356,7 +353,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
 
     cyInstanceRef.current = cy;
-    setLayoutMode("mindmap");
+    setLayoutMode(LAYOUT_MODES.MINDMAP);
   };
 
   return (
