@@ -1,35 +1,39 @@
 import React from "react";
 import { parseNeo4jInt } from "@/utils/neo4jUtils";
 
+function parseNeo4jValue(value) {
+  if (
+    value &&
+    typeof value === "object" &&
+    "low" in value &&
+    "high" in value &&
+    typeof value.low === "number" &&
+    typeof value.high === "number"
+  ) {
+    return parseNeo4jInt(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(parseNeo4jValue);
+  }
+
+  if (value && typeof value === "object") {
+    const newObj = {};
+    for (const [key, val] of Object.entries(value)) {
+      newObj[key] = parseNeo4jValue(val);
+    }
+    return newObj;
+  }
+
+  return value;
+}
+
 function simplifyField(field) {
-  if (!field || typeof field !== "object") return field;
-
-  // Neo4j Integer 처리
-  if (typeof field.low === "number" && typeof field.high === "number") {
-    return parseNeo4jInt(field);
-  }
-
-  // Node or Relationship
-  const simplified = { ...field };
-
-  if (field.identity) {
-    simplified.identity = parseNeo4jInt(field.identity);
-  }
-
-  if (field.properties) {
-    simplified.properties = { ...field.properties };
-    Object.entries(field.properties).forEach(([key, value]) => {
-      simplified.properties[key] = parseNeo4jInt(value);
-    });
-  }
-
-  if (field.start) simplified.start = parseNeo4jInt(field.start);
-  if (field.end) simplified.end = parseNeo4jInt(field.end);
-
-  return simplified;
+  return parseNeo4jValue(field);
 }
 
 export default function ObjectTable({ rawRecords }) {
+  console.log("======", rawRecords);
   if (!rawRecords || rawRecords.length === 0)
     return <div>데이터가 없습니다.</div>;
 
