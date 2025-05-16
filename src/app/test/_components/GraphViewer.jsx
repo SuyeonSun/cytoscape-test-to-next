@@ -171,6 +171,43 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
           select: function () {},
         },
         {
+          content: "통합",
+          select: function (ele) {
+            console.log("통합하기 -------------");
+            const visited = new Set();
+            const queue = [ele];
+
+            while (queue.length > 0) {
+              const node = queue.shift();
+              const nodeId = node.id();
+              if (visited.has(nodeId)) continue;
+              visited.add(nodeId);
+
+              const incomingEdges = node
+                .connectedEdges()
+                .filter((edge) => edge.target().id() === nodeId);
+
+              incomingEdges.forEach((edge) => {
+                const source = edge.source();
+
+                if (layoutModeRef.current === "mindmap") {
+                  edge.hide();
+                  edge.style("opacity", 0);
+                  source.hide();
+                  source.style("opacity", 0);
+                  source.data("isHidden", true);
+                } else {
+                  edge.hide();
+                  source.hide();
+                  source.data("isHidden", true);
+                }
+
+                queue.push(source);
+              });
+            }
+          },
+        },
+        {
           content: "정보",
           select: function (ele) {
             const connectedEdges = ele.connectedEdges();
