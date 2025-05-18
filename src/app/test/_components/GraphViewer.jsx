@@ -26,9 +26,62 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cytoscape.use(cxtmenu);
   }
 
-  useEffect(() => {
-    layoutModeRef.current = layoutMode;
-  }, [layoutMode]);
+  const hideNode = (node, layoutMode) => {
+    node.hide();
+    if (layoutMode === LAYOUT_MODES.MINDMAP) {
+      node.style("opacity", 0);
+    }
+    node.data("isHidden", true);
+  };
+
+  const showNode = (node, layoutMode, duration = 800) => {
+    node.show();
+    node.data("isHidden", false);
+
+    if (layoutMode === LAYOUT_MODES.MINDMAP) {
+      requestAnimationFrame(() => {
+        node.animate({ style: { opacity: 1 }, duration });
+      });
+    }
+
+    if (layoutMode === LAYOUT_MODES.RADIAL) {
+      node.style("opacity", 1);
+    }
+
+    if (layoutMode === LAYOUT_MODES.DAGRE) {
+      node.style("opacity", 1);
+    }
+  };
+
+  const hideEdge = (edge, layoutMode) => {
+    edge.hide();
+    if (layoutMode === LAYOUT_MODES.MINDMAP) {
+      edge.style("opacity", 0);
+    }
+  };
+
+  const showEdge = (edge, layoutMode, duration = 800) => {
+    edge.show();
+
+    if (layoutMode === LAYOUT_MODES.MINDMAP) {
+      requestAnimationFrame(() => {
+        edge.animate({ style: { opacity: 1 }, duration });
+      });
+    }
+
+    if (layoutMode === LAYOUT_MODES.RADIAL) {
+      edge.style("opacity", 1);
+    }
+
+    if (layoutMode === LAYOUT_MODES.DAGRE) {
+      edge.style("opacity", 1);
+    }
+  };
+
+  const setLayoutModeWithRef = (mode) => {
+    layoutModeRef.current = mode;
+    setLayoutMode(mode);
+  };
 
   useEffect(() => {
     if (!cyRef.current) return;
@@ -83,19 +136,10 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         {
           content: "숨김",
           select: function (ele) {
-            if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-              ele.hide();
-              ele.style("opacity", 0);
-              ele.connectedEdges().forEach((edge) => {
-                edge.style("opacity", 0);
-                edge.hide();
-              });
-              ele.data("isHidden", true);
-            } else {
-              ele.hide();
-              ele.connectedEdges().forEach((edge) => edge.hide());
-              ele.data("isHidden", true);
-            }
+            hideNode(ele, layoutModeRef.current);
+            ele.connectedEdges().forEach((edge) => {
+              hideEdge(edge, layoutModeRef.current);
+            });
           },
         },
         {
@@ -122,42 +166,18 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                   const isRootNode = nodeId === rootId;
                   if (!isRootNode) return;
 
-                  edge.show();
-                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-                    requestAnimationFrame(() => {
-                      edge.animate({ style: { opacity: 1 }, duration: 800 });
-                    });
-                  }
+                  showEdge(edge, layoutModeRef.current);
+                  showNode(next, layoutModeRef.current);
 
-                  next.show();
-                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-                    requestAnimationFrame(() => {
-                      next.animate({ style: { opacity: 1 }, duration: 800 });
-                    });
-                  }
-
-                  next.data("isHidden", false);
                   queue.push({ node: next, from: nodeId });
                 } else {
                   const prev = source;
                   const isRootTarget = target.id() === rootId;
                   if (!isRootTarget && prev.data("isHidden")) return;
 
-                  edge.show();
-                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-                    requestAnimationFrame(() => {
-                      edge.animate({ style: { opacity: 1 }, duration: 800 });
-                    });
-                  }
+                  showEdge(edge, layoutModeRef.current);
+                  showNode(prev, layoutModeRef.current);
 
-                  prev.show();
-                  if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-                    requestAnimationFrame(() => {
-                      prev.animate({ style: { opacity: 1 }, duration: 800 });
-                    });
-                  }
-
-                  prev.data("isHidden", false);
                   queue.push({ node: prev, from: nodeId });
                 }
               });
@@ -187,17 +207,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
               incomingEdges.forEach((edge) => {
                 const source = edge.source();
 
-                if (layoutModeRef.current === LAYOUT_MODES.MINDMAP) {
-                  edge.hide();
-                  edge.style("opacity", 0);
-                  source.hide();
-                  source.style("opacity", 0);
-                  source.data("isHidden", true);
-                } else {
-                  edge.hide();
-                  source.hide();
-                  source.data("isHidden", true);
-                }
+                hideEdge(edge, layoutModeRef.current);
+                hideNode(source, layoutModeRef.current);
 
                 queue.push(source);
               });
@@ -253,34 +264,29 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
   }, [graphData]);
 
   const applyRadialLayout = () => {
+    setLayoutModeWithRef(LAYOUT_MODES.RADIAL);
     const cy = cyInstanceRef.current;
     cy.nodes().forEach((node) => {
-      node.show();
-      node.style("opacity", 1);
-      node.data("isHidden", false);
+      showNode(node, layoutModeRef.current);
     });
     cy.edges().forEach((edge) => {
-      edge.show();
-      edge.style("opacity", 1);
+      showEdge(edge, layoutModeRef.current);
     });
 
     cy.layout({ name: "cose", animate: true, padding: 30 }).run();
     cy.style().selector("edge").style({ "curve-style": "straight" }).update();
 
     cyInstanceRef.current = cy;
-    setLayoutMode(LAYOUT_MODES.RADIAL);
   };
 
   const applyDagreLayout = () => {
+    setLayoutModeWithRef(LAYOUT_MODES.DAGRE);
     const cy = cyInstanceRef.current;
     cy.nodes().forEach((node) => {
-      node.show();
-      node.style("opacity", 1);
-      node.data("isHidden", false);
+      showNode(node, layoutModeRef.current);
     });
     cy.edges().forEach((edge) => {
-      edge.show();
-      edge.style("opacity", 1);
+      showEdge(edge, layoutModeRef.current);
     });
 
     cy.layout({
@@ -296,21 +302,18 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cy.style().selector("edge").style({ "curve-style": "round-taxi" }).update(); // "straight"
 
     cyInstanceRef.current = cy;
-    setLayoutMode(LAYOUT_MODES.DAGRE);
   };
 
   const applyMindmapLayout = () => {
+    setLayoutModeWithRef(LAYOUT_MODES.MINDMAP);
     const cy = cyInstanceRef.current;
     if (!cy) return;
 
     cy.nodes().forEach((node) => {
-      node.hide();
-      node.style("opacity", 0);
-      node.data("isHidden", true);
+      hideNode(node, layoutModeRef.current);
     });
     cy.edges().forEach((edge) => {
-      edge.hide();
-      edge.style("opacity", 0);
+      hideEdge(edge, layoutModeRef.current);
     });
 
     const roots = cy
@@ -353,7 +356,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
 
     cyInstanceRef.current = cy;
-    setLayoutMode(LAYOUT_MODES.MINDMAP);
   };
 
   return (
