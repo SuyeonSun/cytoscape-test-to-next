@@ -30,7 +30,7 @@ export default function TestPage() {
     setIsSimple(isSimpleTable(rawRecords));
 
     cy?.elements().remove();
-    cy?.add([...data.nodes, ...data.edges]);
+    // cy?.add([...data.nodes, ...data.edges]);
     // cy?.layout({ name: "cose", animate: true, padding: 30 }).run();
   };
 
@@ -75,7 +75,6 @@ export default function TestPage() {
         ) : (
           <ObjectTable rawRecords={rawRecords} />
         )}
-        {/* <GraphSummary hoveredNode={hoveredNode} /> */}
       </div>
     </div>
   );
