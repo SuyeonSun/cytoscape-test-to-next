@@ -95,6 +95,15 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "text-valign": "center",
             "text-halign": "center",
             "font-size": "4px",
+            backgroundColor: (ele) => {
+              const level = parseNeo4jInt(ele.data("level"));
+              if (level === 0) return "#ef5350";
+              else if (level === 1) return "#ffcc00";
+              else if (level === 2) return "#66bb6a";
+              else if (level === 3) return "#42a5f5";
+              else if (level === 4) return "#ab47bc";
+              else return "#ddd"; // fallback
+            },
             color: "#333",
             width: "20px",
             height: "20px",
@@ -367,7 +376,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             기본 dagre 레이아웃
           </button>
           <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
-            🧠 마인드맵 인터랙티브
+            🧠 VTD 스타일
           </button>
           {layoutMode}
         </div>
