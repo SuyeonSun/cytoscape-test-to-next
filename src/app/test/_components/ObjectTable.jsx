@@ -44,7 +44,8 @@ export default function ObjectTable({ rawRecords }) {
         overflowX: "auto",
         width: "100%",
         overflowY: "auto",
-        maxHeight: "500px",
+        maxHeight: "600px",
+        marginTop: "45px",
       }}
     >
       <table
