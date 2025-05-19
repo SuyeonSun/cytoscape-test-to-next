@@ -85,19 +85,27 @@ export default function QueryForm({ onQuery, onReset }) {
         </p>
         <p style={{ margin: "12px 0px" }}>
           <code>
-            // amount 속성의 최소값, 최대값, 평균값
+            // 비용 흐름만 조회
             <br />
-            MATCH (n:Metric) RETURN MIN(n.amount) AS minAmount, MAX(n.amount) AS
-            maxAmount, AVG(n.amount) AS avgAmount
+            {`MATCH (n:Metric)-[r:contrib_to {role: "negative"}]->(m:Metric)
+            RETURN n, r, m`}
           </code>
         </p>
-        <p>
+        <p style={{ margin: "12px 0px" }}>
           <code>
             // level2 이하만 필터링
             <br />
             {`MATCH (n:Metric)-[r:contrib_to]->(m:Metric)
             WHERE n.level <= 2 AND m.level <= 2
             RETURN n, r, m`}
+          </code>
+        </p>
+        <p style={{ margin: "12px 0px" }}>
+          <code>
+            // amount 속성의 최소값, 최대값, 평균값
+            <br />
+            MATCH (n:Metric) RETURN MIN(n.amount) AS minAmount, MAX(n.amount) AS
+            maxAmount, AVG(n.amount) AS avgAmount
           </code>
         </p>
       </div>
