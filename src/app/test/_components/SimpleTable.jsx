@@ -11,7 +11,14 @@ export default function SimpleTable({ rawRecords }) {
   const headers = rawRecords[0].keys;
 
   return (
-    <div style={{ overflowX: "auto", width: "100%" }}>
+    <div
+      style={{
+        overflowX: "auto",
+        width: "100%",
+        overflowY: "auto",
+        maxHeight: "500px",
+      }}
+    >
       <table
         style={{
           borderCollapse: "collapse",
@@ -48,6 +55,7 @@ export default function SimpleTable({ rawRecords }) {
                     style={{
                       borderBottom: "1px solid #eee",
                       padding: "8px",
+                      fontSize: "13px",
                     }}
                   >
                     {typeof value === "string" ? value : parseNeo4jInt(value)}
