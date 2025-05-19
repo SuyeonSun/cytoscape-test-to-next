@@ -97,11 +97,11 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             "font-size": "4px",
             backgroundColor: (ele) => {
               const level = parseNeo4jInt(ele.data("level"));
-              if (level === 0) return "#ef5350";
-              else if (level === 1) return "#ffcc00";
-              else if (level === 2) return "#66bb6a";
-              else if (level === 3) return "#42a5f5";
-              else if (level === 4) return "#ab47bc";
+              if (level === 0) return "#e57373";
+              else if (level === 1) return "#90a4ce";
+              else if (level === 2) return "#26A69A";
+              else if (level === 3) return "#64b5f6";
+              else if (level === 4) return "#B2DFDB";
               else return "#ddd"; // fallback
             },
             color: "#333",
@@ -283,6 +283,12 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     });
 
     cy.layout({ name: "cose", animate: true, padding: 30 }).run();
+    // ====================================
+    cy.style().selector("node").style({
+      shape: "ellipse",
+      width: "20px",
+      height: "20px",
+    });
     cy.style().selector("edge").style({ "curve-style": "straight" }).update();
 
     cyInstanceRef.current = cy;
@@ -308,6 +314,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       animate: true,
     }).run();
 
+    // ====================================
+    cy.style().selector("node").style({
+      shape: "ellipse",
+      width: "20px",
+      height: "20px",
+    });
+
     cy.style().selector("edge").style({ "curve-style": "round-taxi" }).update(); // "straight"
 
     cyInstanceRef.current = cy;
@@ -332,6 +345,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
       console.log("루트 노드를 찾을 수 없습니다.");
       return;
     }
+
+    // ====================================
+    cy.style().selector("node").style({
+      shape: "rectangle",
+      width: "30px",
+      height: "20px",
+    });
 
     cy.style()
       .selector("edge")
@@ -367,21 +387,75 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
     cyInstanceRef.current = cy;
   };
 
+  const buttonStyle = {
+    padding: "6px 12px",
+    fontSize: "13px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+    backgroundColor: "#ffffff",
+    color: "#333",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+  };
+
+  const getButtonBgColor = (mode) => {
+    switch (mode) {
+      case "mindMap":
+        return "#e8f5e9";
+      case "radial":
+        return "#e3f2fd";
+      case "dagre":
+        return "#f3e5f5";
+      default:
+        return "#ffffff";
+    }
+  };
+
   return (
-    <>
-      <div>
-        <div style={{ marginBottom: "8px" }}>
-          <button onClick={applyRadialLayout}>기본 방사형 레이아웃</button>
-          <button onClick={applyDagreLayout} style={{ marginLeft: "8px" }}>
-            기본 dagre 레이아웃
-          </button>
-          <button onClick={applyMindmapLayout} style={{ marginLeft: "8px" }}>
-            🧠 VTD 스타일
-          </button>
-          {layoutMode}
-        </div>
-        <div id="cy" ref={cyRef} className={styles.cy} />
+    <div style={{ fontFamily: "sans-serif", paddingBottom: "12px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          onClick={applyRadialLayout}
+          style={{
+            ...buttonStyle,
+            backgroundColor:
+              layoutMode === "radial" ? getButtonBgColor("radial") : "#fff",
+          }}
+        >
+          기본 방사형 레이아웃
+        </button>
+        <button
+          onClick={applyDagreLayout}
+          style={{
+            ...buttonStyle,
+            backgroundColor:
+              layoutMode === "dagre" ? getButtonBgColor("dagre") : "#fff",
+          }}
+        >
+          기본 dagre 레이아웃
+        </button>
+        <button
+          onClick={applyMindmapLayout}
+          style={{
+            ...buttonStyle,
+            backgroundColor:
+              layoutMode === "mindMap" ? getButtonBgColor("mindMap") : "#fff",
+          }}
+        >
+          🧠 VTD 스타일
+        </button>
       </div>
-    </>
+
+      <div id="cy" ref={cyRef} className={styles.cy} />
+    </div>
   );
 }
