@@ -45,7 +45,10 @@ export default function QueryForm({ onQuery, onReset }) {
             쿼리 실행
           </button>
           <button
-            onClick={onReset}
+            onClick={() => {
+              onReset();
+              setQuery("");
+            }}
             style={{
               padding: "6px 12px",
               backgroundColor: "#e0e0e0",
@@ -73,13 +76,28 @@ export default function QueryForm({ onQuery, onReset }) {
           lineHeight: "1.6",
         }}
       >
-        <p style={{ margin: "4px 0" }}>
-          <code>MATCH (n)-[r]-&gt;(m) RETURN n, r, m</code>
-        </p>
-        <p style={{ margin: "4px 0" }}>
+        <p style={{ margin: "12px 0px" }}>
           <code>
+            // 전체 속성 조회
+            <br />
+            MATCH (n)-[r]-&gt;(m) RETURN n, r, m
+          </code>
+        </p>
+        <p style={{ margin: "12px 0px" }}>
+          <code>
+            // amount 속성의 최소값, 최대값, 평균값
+            <br />
             MATCH (n:Metric) RETURN MIN(n.amount) AS minAmount, MAX(n.amount) AS
             maxAmount, AVG(n.amount) AS avgAmount
+          </code>
+        </p>
+        <p>
+          <code>
+            // level2 이하만 필터링
+            <br />
+            {`MATCH (n:Metric)-[r:contrib_to]->(m:Metric)
+            WHERE n.level <= 2 AND m.level <= 2
+            RETURN n, r, m`}
           </code>
         </p>
       </div>
