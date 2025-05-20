@@ -188,10 +188,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                     },
                 },
                 {
-                    content: '닫기',
-                    select: function () {},
-                },
-                {
                     content: '통합',
                     select: function (ele) {
                         const visited = new Set();
@@ -232,7 +228,8 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                     },
                 },
             ],
-            openMenuEvents: 'tap',
+            openMenuEvents: 'tap', // ''
+            outsideMenuCancel: 1,
             fillColor: '#eaeaea',
             activeFillColor: '#ccc',
             activePadding: 5,
@@ -248,6 +245,25 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         });
 
         cy.add([...graphData.nodes, ...graphData.edges]);
+
+        cy.on('cxttap', 'node', (evt) => {
+            if (layoutModeRef.current === LAYOUT_MODES.DAGRE) {
+                const currentZoom = cy.zoom();
+                const targetZoom = 2;
+                if (currentZoom < targetZoom) {
+                    cy.animate({
+                        center: { eles: evt.target },
+                        zoom: targetZoom,
+                        duration: 500,
+                        easing: 'ease-in-out',
+                    });
+                }
+            }
+        });
+
+        cy.on('tap', 'node', (evt) => {
+            console.log('노드 클릭:', evt.target.data());
+        });
 
         cy.on('tap', 'edge', (evt) => {
             console.log('엣지 클릭:', evt.target.data());
@@ -273,7 +289,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         });
 
         cy.layout({ name: 'cose', animate: true, padding: 30 }).run();
-        // ====================================
         cy.style().selector('node').style({
             shape: 'ellipse',
             width: '20px',
@@ -297,14 +312,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         cy.layout({
             name: 'dagre',
             rankDir: 'RL',
-            nodeSep: 40,
-            rankSep: 100,
-            edgeSep: 20,
+            nodeSep: 5, // 같은 레벨에서 노드 간 간격
+            rankSep: 40, // 레벨 간 edge 길이
+            edgeSep: 30, // 동일 레벨에서의 edge 길이
             padding: 20,
             animate: true,
         }).run();
 
-        // ====================================
         cy.style().selector('node').style({
             shape: 'ellipse',
             width: '20px',
@@ -334,7 +348,6 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             return;
         }
 
-        // ====================================
         cy.style().selector('node').style({
             shape: 'rectangle',
             width: '30px',
@@ -355,9 +368,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         const layout = cy.layout({
             name: 'dagre',
             rankDir: 'RL',
-            nodeSep: 40,
-            rankSep: 100,
-            edgeSep: 20,
+            nodeSep: 15,
+            rankSep: 50,
+            edgeSep: 25,
             padding: 20,
             animate: true,
         });
@@ -368,8 +381,14 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             roots.forEach((root) => {
                 root.show();
                 root.data('isHidden', false);
-                root.animate({ style: { opacity: 1 }, duration: 500 });
+                root.animate({ style: { opacity: 1 }, duration: 5 });
             });
+
+            cy.zoom({
+                level: 2.0,
+                // position: { x: 0, y: 0 },
+            });
+            cy.center(roots);
         });
 
         cyInstanceRef.current = cy;
