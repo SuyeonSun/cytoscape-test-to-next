@@ -4,6 +4,7 @@ import cytoscape from '@/lib/cytoscapeWithExtensions';
 import { useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { graphDataAtom } from '@/store/graphAtoms';
+import { parseNeo4jInt } from '@/utils/neo4jUtils';
 
 export default function TestPage2() {
     const cyRef = useRef(null);
@@ -12,13 +13,20 @@ export default function TestPage2() {
 
     // window 전역 함수 등록 (입력창 blur 시 반영)
     useEffect(() => {
-        window.updateNodeName = (nodeId, value) => {
+        window.freezeCyInteractions = () => {
             const cy = cyInstanceRef.current;
-            const node = cy?.getElementById(nodeId);
-            if (node) {
-                node.data('name', value);
-                cy.style().update();
-            }
+            cy?.autoungrabify(true); // 전체 노드 클릭/드래그 방지
+        };
+
+        window.restoreCyInteractions = () => {
+            const cy = cyInstanceRef.current;
+            cy?.autoungrabify(false); // 다시 활성화
+        };
+
+        window.updateNodeValue = (id, value) => {
+            const cy = cyInstanceRef.current;
+            const node = cy?.getElementById(id);
+            if (node) node.data('amount', Number(value));
         };
     }, []);
 
@@ -44,8 +52,8 @@ export default function TestPage2() {
                 {
                     selector: 'node',
                     style: {
-                        width: 80,
-                        height: 40,
+                        width: 150,
+                        height: 50,
                         backgroundColor: '#90caf9',
                         shape: 'rectangle',
                     },
@@ -71,31 +79,29 @@ export default function TestPage2() {
                 query: 'node',
                 halign: 'center',
                 valign: 'center',
-                tpl: (data) => `
-                  <div class="cy-node-label-html" 
+                tpl: (data) => {
+                    const value = parseNeo4jInt(data.amount) || 0;
+
+                    return `
+                    <div 
+                      class="cy-node-label-html" 
                       style="text-align:center; pointer-events:auto;"
-                      onclick="event.stopPropagation();"
-                      onmousedown="event.stopPropagation();"
-                      onmouseup="event.stopPropagation();"
-                  >
-                    <input type="text"
-                      value="${data.amount || 0}"
-                      oninput="this.setAttribute('value', this.value)"
-                      onblur="window.updateNodeName('${data.id}', this.value)"
-                      style="
-                        width: 60px;
-                        font-size: 10px;
-                        padding: 2px;
-                        border-radius: 4px;
-                        border: 1px solid #ccc;
-                        pointer-events: auto;
-                      "
-                      onclick="event.stopPropagation();"
-                      onmousedown="event.stopPropagation();"
-                      onmouseup="event.stopPropagation();"
-                    />
-                  </div>
-                `,
+                      onmousedown="event.stopPropagation(); window.freezeCyInteractions()"
+                      onmouseup="event.stopPropagation(); window.restoreCyInteractions()"
+                      onmousemove="event.stopPropagation();"
+                    >
+                      <input 
+                        type="range"
+                        value="${value}"
+                        oninput="event.stopPropagation(); "
+                        onmousedown="event.stopPropagation(); window.freezeCyInteractions()"
+                        onmouseup="event.stopPropagation(); window.restoreCyInteractions()"
+                        onmousemove="event.stopPropagation();"
+                        style="width: 100px; pointer-events: auto;"
+                      />
+                    </div>
+                  `;
+                },
             },
         ]);
 
@@ -105,6 +111,12 @@ export default function TestPage2() {
     return (
         <>
             <p>Test Page2</p>
+            <input
+                type="range"
+                onInput={(e) => {
+                    console.log('Slider changed:', e.currentTarget.value);
+                }}
+            />
             <div id="cy" ref={cyRef} style={{ width: '600px', height: '600px', border: '1px solid #eee' }} />
         </>
     );
