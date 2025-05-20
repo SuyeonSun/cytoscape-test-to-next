@@ -38,7 +38,7 @@ export default function TestPage2() {
                     selector: 'node',
                     style: {
                         width: 150,
-                        height: 50,
+                        height: 65,
                         backgroundColor: '#90caf9',
                         shape: 'rectangle',
                     },
@@ -46,7 +46,11 @@ export default function TestPage2() {
                 {
                     selector: 'edge',
                     style: {
+                        label: (ele) => {
+                            return `${ele.data('role') === 'negative' ? '-' : '+'}`;
+                        },
                         width: 1,
+                        'font-size': '30px',
                         'line-color': '#ccc',
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': '#ccc',
@@ -57,6 +61,14 @@ export default function TestPage2() {
         });
 
         cy.add([...graphData.nodes, ...graphData.edges]);
+
+        cy.on('tap', 'node', (evt) => {
+            console.log('node 클릭:', evt.target.data());
+        });
+
+        cy.on('tap', 'edge', (evt) => {
+            console.log('edge 클릭:', evt.target.data());
+        });
 
         cy.layout({
             name: 'dagre',
@@ -69,6 +81,7 @@ export default function TestPage2() {
         }).run();
 
         // node-html-label 등록
+        // this.nextElementSibling.textContent = '${data.name} ' + this.value;"
         cy.nodeHtmlLabel([
             {
                 query: 'node',
@@ -81,6 +94,7 @@ export default function TestPage2() {
                       class="cy-node-label-html" 
                       style="text-align:center; pointer-events:auto;"
                     >
+                      <div>${data.name}</div>
                       <input 
                         type="range"
                         value="${value}"
@@ -88,12 +102,12 @@ export default function TestPage2() {
                         max="${100000000000}"
                         oninput="
                         applyInputAmount(this.value); 
-                        this.nextElementSibling.textContent = '${data.name} ' + this.value;"
+                        this.nextElementSibling.textContent = this.value;"
                         onmousedown="event.stopPropagation();"
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
                       />
-                      <div>${data.name} ${value}</div>
+                      <div>${value}</div>
                     </div>
                   `;
                 },
