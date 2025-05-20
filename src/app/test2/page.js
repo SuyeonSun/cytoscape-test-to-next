@@ -11,25 +11,6 @@ export default function TestPage2() {
     const cyInstanceRef = useRef(null);
     const [graphData, setGraphData] = useAtom(graphDataAtom);
 
-    // window 전역 함수 등록 (입력창 blur 시 반영)
-    useEffect(() => {
-        window.freezeCyInteractions = () => {
-            const cy = cyInstanceRef.current;
-            cy?.autoungrabify(true); // 전체 노드 클릭/드래그 방지
-        };
-
-        window.restoreCyInteractions = () => {
-            const cy = cyInstanceRef.current;
-            cy?.autoungrabify(false); // 다시 활성화
-        };
-
-        window.updateNodeValue = (id, value) => {
-            const cy = cyInstanceRef.current;
-            const node = cy?.getElementById(id);
-            if (node) node.data('amount', Number(value));
-        };
-    }, []);
-
     const loadGraph = async (query = null) => {
         const res = await fetch(query ? '/api/query' : '/api/graph', {
             method: query ? 'POST' : 'GET',
@@ -73,6 +54,16 @@ export default function TestPage2() {
 
         cy.add([...graphData.nodes, ...graphData.edges]);
 
+        cy.layout({
+            name: 'dagre',
+            rankDir: 'RL',
+            nodeSep: 40,
+            rankSep: 100,
+            edgeSep: 20,
+            padding: 20,
+            animate: true,
+        }).run();
+
         // node-html-label 등록
         cy.nodeHtmlLabel([
             {
@@ -93,6 +84,7 @@ export default function TestPage2() {
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
                       />
+                      <div>${data.name} ${value}</div>
                     </div>
                   `;
                 },
@@ -111,7 +103,7 @@ export default function TestPage2() {
                     console.log('Slider changed:', e.currentTarget.value);
                 }}
             />
-            <div id="cy" ref={cyRef} style={{ width: '600px', height: '600px', border: '1px solid #eee' }} />
+            <div id="cy" ref={cyRef} style={{ width: '1000px', height: '600px', border: '1px solid #eee' }} />
         </>
     );
 }
