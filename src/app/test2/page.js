@@ -80,6 +80,9 @@ export default function TestPage2() {
                       <input 
                         type="range"
                         value="${value}"
+                        min="${0}"
+                        max="${100000000000}"
+                        oninput="console.log(this.value)"
                         onmousedown="event.stopPropagation();"
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
@@ -96,9 +99,10 @@ export default function TestPage2() {
 
     return (
         <>
-            <p>Test Page2</p>
             <input
                 type="range"
+                min={0}
+                max={10}
                 onInput={(e) => {
                     console.log('Slider changed:', e.currentTarget.value);
                 }}
