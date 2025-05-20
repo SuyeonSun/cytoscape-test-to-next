@@ -81,21 +81,15 @@ export default function TestPage2() {
                 valign: 'center',
                 tpl: (data) => {
                     const value = parseNeo4jInt(data.amount) || 0;
-
                     return `
                     <div 
                       class="cy-node-label-html" 
                       style="text-align:center; pointer-events:auto;"
-                      onmousedown="event.stopPropagation(); window.freezeCyInteractions()"
-                      onmouseup="event.stopPropagation(); window.restoreCyInteractions()"
-                      onmousemove="event.stopPropagation();"
                     >
                       <input 
                         type="range"
                         value="${value}"
-                        oninput="event.stopPropagation(); "
-                        onmousedown="event.stopPropagation(); window.freezeCyInteractions()"
-                        onmouseup="event.stopPropagation(); window.restoreCyInteractions()"
+                        onmousedown="event.stopPropagation();"
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
                       />
