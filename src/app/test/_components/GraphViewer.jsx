@@ -53,23 +53,28 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         if (layoutMode === LAYOUT_MODES.MINDMAP) {
             edge.style('opacity', 0);
         }
+        edge.data('isHidden', true);
     };
 
     const showEdge = (edge, layoutMode, duration = 800) => {
-        edge.show();
+        if (edge.data('isHidden')) {
+            edge.show();
+            edge.data('isHidden', false);
 
-        if (layoutMode === LAYOUT_MODES.MINDMAP) {
-            requestAnimationFrame(() => {
-                edge.animate({ style: { opacity: 1 }, duration });
-            });
-        }
+            if (layoutMode === LAYOUT_MODES.MINDMAP) {
+                // edge.style('opacity', 1);
+                requestAnimationFrame(() => {
+                    edge.animate({ style: { opacity: 1 }, duration });
+                });
+            }
 
-        if (layoutMode === LAYOUT_MODES.RADIAL) {
-            edge.style('opacity', 1);
-        }
+            if (layoutMode === LAYOUT_MODES.RADIAL) {
+                edge.style('opacity', 1);
+            }
 
-        if (layoutMode === LAYOUT_MODES.DAGRE) {
-            edge.style('opacity', 1);
+            if (layoutMode === LAYOUT_MODES.DAGRE) {
+                edge.style('opacity', 1);
+            }
         }
     };
 
@@ -109,13 +114,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                 {
                     selector: 'edge',
                     style: {
-                        label: (ele) => {
-                            const type = ele.data('type') || '';
-                            const amount = parseNeo4jInt(ele.data('amount'));
-                            return `${type}\n${
-                                ele.data('role') === 'negative' ? '(-)' : '(+)'
-                            } ${formatAmountWithMajorUnits(amount)}`;
-                        },
+                        // label: (ele) => {
+                        //     const type = ele.data('type') || '';
+                        //     const amount = parseNeo4jInt(ele.data('amount'));
+                        //     return `${type}\n${
+                        //         ele.data('role') === 'negative' ? '(-)' : '(+)'
+                        //     } ${formatAmountWithMajorUnits(amount)}`;
+                        // },
                         width: 0.4,
                         'text-wrap': 'wrap',
                         'line-color': '#ccc',
