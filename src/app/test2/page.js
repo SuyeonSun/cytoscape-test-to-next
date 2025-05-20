@@ -23,6 +23,10 @@ export default function TestPage2() {
 
     useEffect(() => {
         loadGraph(null);
+
+        window.applyInputAmount = (value) => {
+            // console.log(value);
+        };
     }, []);
 
     useEffect(() => {
@@ -82,7 +86,9 @@ export default function TestPage2() {
                         value="${value}"
                         min="${0}"
                         max="${100000000000}"
-                        oninput="console.log(this.value)"
+                        oninput="
+                        applyInputAmount(this.value); 
+                        this.nextElementSibling.textContent = '${data.name} ' + this.value;"
                         onmousedown="event.stopPropagation();"
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
@@ -104,7 +110,7 @@ export default function TestPage2() {
                 min={0}
                 max={10}
                 onInput={(e) => {
-                    console.log('Slider changed:', e.currentTarget.value);
+                    console.log('normal input slider value', e.currentTarget.value);
                 }}
             />
             <div id="cy" ref={cyRef} style={{ width: '1000px', height: '600px', border: '1px solid #eee' }} />
