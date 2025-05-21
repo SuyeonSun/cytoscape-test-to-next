@@ -151,6 +151,12 @@ export default function TestPage2() {
         }
     };
 
+    // 노드 강제 업데이트
+    const forceReRenderNode = (node) => {
+        node.addClass('force-re-render');
+        node.removeClass('force-re-render');
+    };
+
     useEffect(() => {
         loadGraph(null);
 
@@ -167,8 +173,7 @@ export default function TestPage2() {
 
             const cy = cyInstanceRef.current;
             const node = cy.getElementById(nodeId);
-            node.removeClass('force-refresh');
-            node.addClass('force-refresh');
+            forceReRenderNode(node);
         };
 
         window.handleInputChange = (nodeId, amount) => {
@@ -243,9 +248,9 @@ export default function TestPage2() {
         cy.layout({
             name: 'dagre',
             rankDir: 'RL',
-            nodeSep: 40,
-            rankSep: 100,
-            edgeSep: 20,
+            nodeSep: 25,
+            rankSep: 40,
+            edgeSep: 60,
             padding: 20,
             animate: true,
         }).run();
