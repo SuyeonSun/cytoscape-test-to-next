@@ -166,6 +166,11 @@ export default function TestPage2() {
         expandNode(nodeId);
       }
       ref.expanded = !ref.expanded;
+
+      const cy = cyInstanceRef.current;
+      const node = cy.getElementById(nodeId);
+      node.removeClass("force-refresh");
+      node.addClass("force-refresh");
     };
 
     window.handleInputChange = (nodeId, amount) => {
