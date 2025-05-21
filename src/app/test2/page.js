@@ -10,6 +10,7 @@ export default function TestPage2() {
     const cyRef = useRef(null);
     const cyInstanceRef = useRef(null);
     const [graphData, setGraphData] = useAtom(graphDataAtom);
+    const sliderValueRef = useRef({});
 
     const loadGraph = async (query = null) => {
         const res = await fetch(query ? '/api/query' : '/api/graph', {
@@ -24,8 +25,24 @@ export default function TestPage2() {
     useEffect(() => {
         loadGraph(null);
 
-        window.applyInputAmount = (value) => {
-            // console.log(value);
+        window.handleInputChange = (nodeId, amount) => {
+            const cy = cyInstanceRef.current;
+            if (!cy || !nodeId) return;
+
+            // 값 저장
+            sliderValueRef.current[nodeId] = Number(amount);
+
+            // 자식 node 비활성화화
+            const node = cy.getElementById(nodeId);
+            if (!node || node.empty()) return;
+            const allChildNodes = node.predecessors('node');
+            allChildNodes.forEach((childNode) => {
+                const html = document.querySelector(`.cy-node-label-html[data-node-id="${childNode.id()}"]`);
+                if (html) {
+                    const input = html.querySelector('input');
+                    if (input) input.disabled = true;
+                }
+            });
         };
     }, []);
 
@@ -88,26 +105,30 @@ export default function TestPage2() {
                 halign: 'center',
                 valign: 'center',
                 tpl: (data) => {
-                    const value = parseNeo4jInt(data.amount) || 0;
+                    const savedAmount = sliderValueRef.current?.[data.id];
+                    const initialAmount = parseNeo4jInt(data.amount) || 0;
+                    const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
+
                     return `
                     <div 
                       class="cy-node-label-html" 
+                      data-node-id="${data.id}"
                       style="text-align:center; pointer-events:auto;"
                     >
                       <div>${data.name}</div>
                       <input 
                         type="range"
-                        value="${value}"
+                        value="${amountValue}"
                         min="${0}"
                         max="${100000000000}"
                         oninput="
-                        applyInputAmount(this.value); 
+                        handleInputChange('${data.id}', this.value); 
                         this.nextElementSibling.textContent = this.value;"
                         onmousedown="event.stopPropagation();"
                         onmousemove="event.stopPropagation();"
                         style="width: 100px; pointer-events: auto;"
                       />
-                      <div>${value}</div>
+                      <div>${amountValue}</div>
                     </div>
                   `;
                 },
@@ -119,15 +140,19 @@ export default function TestPage2() {
 
     return (
         <>
-            <input
+            {/* <input
                 type="range"
                 min={0}
                 max={10}
                 onInput={(e) => {
                     console.log('normal input slider value', e.currentTarget.value);
                 }}
+            /> */}
+            <div
+                id="cy"
+                ref={cyRef}
+                style={{ width: '1000px', height: '600px', border: '1px solid #eee', margin: '20px' }}
             />
-            <div id="cy" ref={cyRef} style={{ width: '1000px', height: '600px', border: '1px solid #eee' }} />
         </>
     );
 }
