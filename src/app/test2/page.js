@@ -71,57 +71,98 @@ export default function TestPage2() {
         setGraphData(data);
     };
 
+    const expandNode = (nodeId) => {
+        const cy = cyInstanceRef.current;
+        if (!cy || !nodeId) return;
+
+        const node = cy.getElementById(nodeId);
+        const visited = new Set();
+        const queue = [{ node: node, from: null }];
+        const rootId = node.id();
+
+        while (queue.length > 0) {
+            const { node, from } = queue.shift();
+            const nodeId = node.id();
+            if (visited.has(nodeId)) continue;
+            visited.add(nodeId);
+
+            const edges = node.connectedEdges();
+            edges.forEach((edge) => {
+                const source = edge.source();
+                const target = edge.target();
+                const isOutgoing = source.id() === nodeId;
+
+                if (isOutgoing) {
+                    const next = target;
+                    const isRootNode = nodeId === rootId;
+                    if (!isRootNode) return;
+
+                    showEdge(edge, 2);
+                    showNode(next, 2);
+                    const nextId = next.id();
+                    if (!nodeRef.current[nextId]) nodeRef.current[nextId] = {};
+                    nodeRef.current[nextId].isDisplay = true;
+
+                    queue.push({ node: next, from: nodeId });
+                } else {
+                    const prev = source;
+                    const isRootTarget = target.id() === rootId;
+                    if (!isRootTarget && prev.data('isHidden')) return;
+
+                    showEdge(edge, 2);
+                    showNode(prev, 2);
+                    const prevId = prev.id();
+                    if (!nodeRef.current[prevId]) nodeRef.current[prevId] = {};
+                    nodeRef.current[prevId].isDisplay = true;
+
+                    queue.push({ node: prev, from: nodeId });
+                }
+            });
+        }
+    };
+
+    const collapseNode = (nodeId) => {
+        const cy = cyInstanceRef.current;
+        if (!cy || !nodeId) return;
+
+        const node = cy.getElementById(nodeId);
+        const visited = new Set();
+        const queue = [node];
+
+        while (queue.length > 0) {
+            const node = queue.shift();
+            const nodeId = node.id();
+            if (visited.has(nodeId)) continue;
+            visited.add(nodeId);
+
+            const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
+
+            incomingEdges.forEach((edge) => {
+                const source = edge.source();
+
+                hideEdge(edge, 2);
+                hideNode(source, 2);
+                if (!nodeRef.current[source.id()]) nodeRef.current[source.id()] = {};
+                nodeRef.current[source.id()].isDisplay = false;
+
+                queue.push(source);
+            });
+        }
+    };
+
     useEffect(() => {
         loadGraph(null);
 
-        window.toggleNode = (nodeId) => {
-            const cy = cyInstanceRef.current;
-            if (!cy || !nodeId) return;
+        window.handleToggleClick = (nodeId) => {
+            const ref = nodeRef.current[nodeId];
+            if (!ref) return;
 
-            const node = cy.getElementById(nodeId);
-            const visited = new Set();
-            const queue = [{ node: node, from: null }];
-            const rootId = node.id();
-
-            while (queue.length > 0) {
-                const { node, from } = queue.shift();
-                const nodeId = node.id();
-                if (visited.has(nodeId)) continue;
-                visited.add(nodeId);
-
-                const edges = node.connectedEdges();
-                edges.forEach((edge) => {
-                    const source = edge.source();
-                    const target = edge.target();
-                    const isOutgoing = source.id() === nodeId;
-
-                    if (isOutgoing) {
-                        const next = target;
-                        const isRootNode = nodeId === rootId;
-                        if (!isRootNode) return;
-
-                        showEdge(edge, 2);
-                        showNode(next, 2);
-                        const nextId = next.id();
-                        if (!nodeRef.current[nextId]) nodeRef.current[nextId] = {};
-                        nodeRef.current[nextId].isDisplay = true;
-
-                        queue.push({ node: next, from: nodeId });
-                    } else {
-                        const prev = source;
-                        const isRootTarget = target.id() === rootId;
-                        if (!isRootTarget && prev.data('isHidden')) return;
-
-                        showEdge(edge, 2);
-                        showNode(prev, 2);
-                        const prevId = prev.id();
-                        if (!nodeRef.current[prevId]) nodeRef.current[prevId] = {};
-                        nodeRef.current[prevId].isDisplay = true;
-
-                        queue.push({ node: prev, from: nodeId });
-                    }
-                });
+            if (ref.expanded) {
+                collapseNode(nodeId);
+            } else {
+                expandNode(nodeId);
             }
+            ref.expanded = !ref.expanded;
         };
 
         window.handleInputChange = (nodeId, amount) => {
@@ -177,7 +218,7 @@ export default function TestPage2() {
                         'line-color': '#ccc',
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': '#ccc',
-                        'curve-style': 'round-taxi',
+                        'curve-style': 'straight', // 'round-taxi'
                     },
                 },
             ],
@@ -218,6 +259,8 @@ export default function TestPage2() {
                     const initialAmount = parseNeo4jInt(data.amount) || 0;
                     const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
                     const disabled = ref.disabled ? 'disabled' : '';
+                    const expanded = ref.expanded === true;
+                    const toggleSymbol = expanded ? '&lt;' : '&gt;';
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
@@ -265,9 +308,9 @@ export default function TestPage2() {
                             pointer-events: auto;
                             cursor: pointer;
                             "
-                            onclick="toggleNode('${data.id}')"
+                            onclick="handleToggleClick('${data.id}')"
                         >
-                            >
+                            ${toggleSymbol}
                         </div>
                         <div>${data.name}</div>
                         <input 
