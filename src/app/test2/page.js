@@ -79,7 +79,7 @@ export default function TestPage2() {
                         'line-color': '#ccc',
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': '#ccc',
-                        'curve-style': 'bezier',
+                        'curve-style': 'round-taxi',
                     },
                 },
             ],
