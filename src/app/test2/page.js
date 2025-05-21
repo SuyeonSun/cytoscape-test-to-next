@@ -29,15 +29,23 @@ export default function TestPage2() {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
 
+            if (!nodeRef.current[nodeId]) {
+                nodeRef.current[nodeId] = {};
+            }
             // 값 저장
-            nodeRef.current[nodeId] = Number(amount);
+            nodeRef.current[nodeId].amount = amount;
 
             // 자식 node 비활성화
             const node = cy.getElementById(nodeId);
             if (!node || node.empty()) return;
             const allChildNodes = node.predecessors('node');
             allChildNodes.forEach((childNode) => {
-                const html = document.querySelector(`.cy-node-label-html[data-node-id="${childNode.id()}"]`);
+                const childId = childNode.id();
+                if (!nodeRef.current[childId]) {
+                    nodeRef.current[childId] = {};
+                }
+                nodeRef.current[childId].disabled = true;
+                const html = document.querySelector(`.cy-node-label-html[data-node-id="${childId}"]`);
                 if (html) {
                     const input = html.querySelector('input');
                     if (input) input.disabled = true;
@@ -104,9 +112,11 @@ export default function TestPage2() {
                 halign: 'center',
                 valign: 'center',
                 tpl: (data) => {
-                    const savedAmount = nodeRef.current?.[data.id];
+                    const ref = nodeRef.current?.[data.id] || {};
+                    const savedAmount = ref.amount;
                     const initialAmount = parseNeo4jInt(data.amount) || 0;
                     const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
+                    const disabled = ref.disabled ? 'disabled' : '';
 
                     return `
                     <div 
@@ -117,6 +127,7 @@ export default function TestPage2() {
                       <div>${data.name}</div>
                       <input 
                         type="range"
+                        ${disabled}
                         value="${amountValue}"
                         min="${0}"
                         max="${100000000000}"
