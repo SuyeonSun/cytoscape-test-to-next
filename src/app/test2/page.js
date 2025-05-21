@@ -118,6 +118,17 @@ export default function TestPage2() {
                     const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
                     const disabled = ref.disabled ? 'disabled' : '';
 
+                    const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
+
+                    if (excludedNames.includes(data.name)) {
+                        return `
+                            <div class="cy-node-label-html" data-node-id="${data.id}" style="text-align:center; pointer-events:auto;">
+                                <div>${data.name}</div>
+                                <div>${amountValue}</div>
+                            </div>
+                        `;
+                    }
+
                     return `
                     <div 
                       class="cy-node-label-html" 
