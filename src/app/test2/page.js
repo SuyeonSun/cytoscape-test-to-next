@@ -10,7 +10,7 @@ export default function TestPage2() {
     const cyRef = useRef(null);
     const cyInstanceRef = useRef(null);
     const [graphData, setGraphData] = useAtom(graphDataAtom);
-    const sliderValueRef = useRef({});
+    const nodeRef = useRef({});
 
     const loadGraph = async (query = null) => {
         const res = await fetch(query ? '/api/query' : '/api/graph', {
@@ -30,9 +30,9 @@ export default function TestPage2() {
             if (!cy || !nodeId) return;
 
             // 값 저장
-            sliderValueRef.current[nodeId] = Number(amount);
+            nodeRef.current[nodeId] = Number(amount);
 
-            // 자식 node 비활성화화
+            // 자식 node 비활성화
             const node = cy.getElementById(nodeId);
             if (!node || node.empty()) return;
             const allChildNodes = node.predecessors('node');
@@ -97,7 +97,6 @@ export default function TestPage2() {
             animate: true,
         }).run();
 
-        // node-html-label 등록
         // this.nextElementSibling.textContent = '${data.name} ' + this.value;"
         cy.nodeHtmlLabel([
             {
@@ -105,7 +104,7 @@ export default function TestPage2() {
                 halign: 'center',
                 valign: 'center',
                 tpl: (data) => {
-                    const savedAmount = sliderValueRef.current?.[data.id];
+                    const savedAmount = nodeRef.current?.[data.id];
                     const initialAmount = parseNeo4jInt(data.amount) || 0;
                     const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
 
