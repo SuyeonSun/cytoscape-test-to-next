@@ -241,23 +241,23 @@ export default function TestPage2() {
 
         cy.add([...graphData.nodes, ...graphData.edges]);
 
-        // cy.on('mouseover', 'node', (evt) => {
-        //     const nodeId = evt.target.id();
-        //     const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-        //     if (html) {
-        //         const input = html.querySelector('input');
-        //         if (input) input.style.display = 'inline-block';
-        //     }
-        // });
+        cy.on('mouseover', 'node', (evt) => {
+            const nodeId = evt.target.id();
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('.range-input');
+                if (input) input.style.display = 'inline-block';
+            }
+        });
 
-        // cy.on('mouseout', 'node', (evt) => {
-        //     const nodeId = evt.target.id();
-        //     const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-        //     if (html) {
-        //         const input = html.querySelector('input');
-        //         if (input) input.style.display = 'none';
-        //     }
-        // });
+        cy.on('mouseout', 'node', (evt) => {
+            const nodeId = evt.target.id();
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('.range-input');
+                if (input) input.style.display = 'none';
+            }
+        });
 
         // cy.on('tap', 'node', (evt) => {
         //     console.log('node 클릭:', evt.target.data());
@@ -353,6 +353,7 @@ export default function TestPage2() {
                             excludedNames.includes(data.name)
                                 ? ''
                                 : `<input 
+                            class="range-input"
                             type="range"
                             ${disabled}
                             value="${amountValue}"
@@ -365,7 +366,7 @@ export default function TestPage2() {
                             "
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
-                            style="width: 100px; pointer-events: auto;"
+                            style="width: 100px; pointer-events: auto; display: none"
                         />`
                         }
                         <div class="amount-value">${amountValue}</div>
