@@ -183,7 +183,7 @@ export default function TestPage2() {
             forceReRenderNode(nodeId);
         };
 
-        window.handleInputChange = (nodeId, percentage) => {
+        window.handleInputChange = (nodeId, percentageValue, amountValue) => {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
 
@@ -191,10 +191,9 @@ export default function TestPage2() {
                 nodeRef.current[nodeId] = {};
             }
             // 값 저장
-            const originalAmount = nodeRef.current[nodeId].amount;
-            const calculatedAmount = (originalAmount * percentage) / 100;
+            const calculatedAmount = (amountValue * percentageValue) / 100;
             nodeRef.current[nodeId].amount = calculatedAmount;
-            nodeRef.current[nodeId].percentage = percentage;
+            nodeRef.current[nodeId].percentage = percentageValue;
 
             // 자식 node 비활성화
             const node = cy.getElementById(nodeId);
@@ -372,7 +371,7 @@ export default function TestPage2() {
                             min="${0}"
                             max="${100}"
                             oninput="
-                                handleInputChange('${data.id}', this.value);
+                                handleInputChange('${data.id}', this.value, ${amountValue});
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
                                 if (percentageDiv) percentageDiv.textContent = this.value;
                             "
@@ -382,6 +381,8 @@ export default function TestPage2() {
                         />`
                         }
                         <div class="percentage">${percentageValue}%</div>
+                        <div>${percentageValue}</div>
+                        <div>${amountValue}</div>
                     </div>
                   `;
                 },
