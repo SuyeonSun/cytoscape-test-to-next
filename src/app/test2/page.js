@@ -1,321 +1,380 @@
-'use client';
+"use client";
 
-import cytoscape from '@/lib/cytoscapeWithExtensions';
-import { useEffect, useRef, useState } from 'react';
-import { useAtom } from 'jotai';
-import { graphDataAtom } from '@/store/graphAtoms';
-import { parseNeo4jInt } from '@/utils/neo4jUtils';
+import cytoscape from "@/lib/cytoscapeWithExtensions";
+import { useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
+import { graphDataAtom } from "@/store/graphAtoms";
+import { parseNeo4jInt } from "@/utils/neo4jUtils";
 
 const LAYOUT_MODES = Object.freeze({
-    RADIAL: 0,
-    DAGRE: 1,
-    MINDMAP: 2,
+  RADIAL: 0,
+  DAGRE: 1,
+  MINDMAP: 2,
 });
 
 const showNode = (node, layoutMode, duration = 800) => {
-    node.show();
-    node.data('isHidden', false);
-    if (layoutMode === LAYOUT_MODES.MINDMAP) {
-        requestAnimationFrame(() => {
-            node.animate({ style: { opacity: 1 }, duration });
-        });
-    } else {
-        node.style('opacity', 1);
-    }
+  node.show();
+  node.data("isHidden", false);
+  if (layoutMode === LAYOUT_MODES.MINDMAP) {
+    requestAnimationFrame(() => {
+      node.animate({ style: { opacity: 1 }, duration });
+    });
+  } else {
+    node.style("opacity", 1);
+  }
 };
 
 const hideNode = (node, layoutMode) => {
-    node.hide();
-    if (layoutMode === LAYOUT_MODES.MINDMAP) {
-        node.style('opacity', 0);
-    }
-    node.data('isHidden', true);
+  node.hide();
+  if (layoutMode === LAYOUT_MODES.MINDMAP) {
+    node.style("opacity", 0);
+  }
+  node.data("isHidden", true);
 };
 
 const showEdge = (edge, layoutMode, duration = 800) => {
-    if (edge.data('isHidden')) {
-        edge.show();
-        edge.data('isHidden', false);
+  if (edge.data("isHidden")) {
+    edge.show();
+    edge.data("isHidden", false);
 
-        if (layoutMode === LAYOUT_MODES.MINDMAP) {
-            requestAnimationFrame(() => {
-                edge.animate({ style: { opacity: 1 }, duration });
-            });
-        } else {
-            edge.style('opacity', 1);
-        }
+    if (layoutMode === LAYOUT_MODES.MINDMAP) {
+      requestAnimationFrame(() => {
+        edge.animate({ style: { opacity: 1 }, duration });
+      });
+    } else {
+      edge.style("opacity", 1);
     }
+  }
 };
 
 const hideEdge = (edge, layoutMode) => {
-    edge.hide();
-    if (layoutMode === LAYOUT_MODES.MINDMAP) {
-        edge.style('opacity', 0);
-    }
-    edge.data('isHidden', true);
+  edge.hide();
+  if (layoutMode === LAYOUT_MODES.MINDMAP) {
+    edge.style("opacity", 0);
+  }
+  edge.data("isHidden", true);
 };
 
 export default function TestPage2() {
-    const cyRef = useRef(null);
-    const cyInstanceRef = useRef(null);
-    const [graphData, setGraphData] = useAtom(graphDataAtom);
-    const nodeRef = useRef({});
+  const cyRef = useRef(null);
+  const cyInstanceRef = useRef(null);
+  const [graphData, setGraphData] = useAtom(graphDataAtom);
+  const nodeRef = useRef({});
 
-    const loadGraph = async (query = null) => {
-        const res = await fetch(query ? '/api/query' : '/api/graph', {
-            method: query ? 'POST' : 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: query ? JSON.stringify({ query }) : null,
-        });
-        const { data } = await res.json();
-        setGraphData(data);
-    };
+  const loadGraph = async (query = null) => {
+    const res = await fetch(query ? "/api/query" : "/api/graph", {
+      method: query ? "POST" : "GET",
+      headers: { "Content-Type": "application/json" },
+      body: query ? JSON.stringify({ query }) : null,
+    });
+    const { data } = await res.json();
+    setGraphData(data);
+  };
 
-    const expandNode = (nodeId) => {
-        const cy = cyInstanceRef.current;
-        if (!cy || !nodeId) return;
+  const expandNode = (nodeId) => {
+    const cy = cyInstanceRef.current;
+    if (!cy || !nodeId) return;
 
-        const node = cy.getElementById(nodeId);
-        const visited = new Set();
-        const queue = [{ node: node, from: null }];
-        const rootId = node.id();
+    const node = cy.getElementById(nodeId);
+    const visited = new Set();
+    const queue = [{ node: node, from: null }];
+    const rootId = node.id();
 
-        while (queue.length > 0) {
-            const { node, from } = queue.shift();
-            const nodeId = node.id();
-            if (visited.has(nodeId)) continue;
-            visited.add(nodeId);
+    while (queue.length > 0) {
+      const { node, from } = queue.shift();
+      const nodeId = node.id();
+      if (visited.has(nodeId)) continue;
+      visited.add(nodeId);
 
-            const edges = node.connectedEdges();
-            edges.forEach((edge) => {
-                const source = edge.source();
-                const target = edge.target();
-                const isOutgoing = source.id() === nodeId;
+      const edges = node.connectedEdges();
+      edges.forEach((edge) => {
+        const source = edge.source();
+        const target = edge.target();
+        const isOutgoing = source.id() === nodeId;
 
-                if (isOutgoing) {
-                    const next = target;
-                    const isRootNode = nodeId === rootId;
-                    if (!isRootNode) return;
+        if (isOutgoing) {
+          const next = target;
+          const isRootNode = nodeId === rootId;
+          if (!isRootNode) return;
 
-                    showEdge(edge, 2);
-                    showNode(next, 2);
-                    const nextId = next.id();
-                    if (!nodeRef.current[nextId]) nodeRef.current[nextId] = {};
-                    nodeRef.current[nextId].isDisplay = true;
+          showEdge(edge, 2);
+          showNode(next, 2);
+          const nextId = next.id();
+          if (!nodeRef.current[nextId]) nodeRef.current[nextId] = {};
+          nodeRef.current[nextId].isDisplay = true;
 
-                    queue.push({ node: next, from: nodeId });
-                } else {
-                    const prev = source;
-                    const isRootTarget = target.id() === rootId;
-                    if (!isRootTarget && prev.data('isHidden')) return;
+          queue.push({ node: next, from: nodeId });
+        } else {
+          const prev = source;
+          const isRootTarget = target.id() === rootId;
+          if (!isRootTarget && prev.data("isHidden")) return;
 
-                    showEdge(edge, 2);
-                    showNode(prev, 2);
-                    const prevId = prev.id();
-                    if (!nodeRef.current[prevId]) nodeRef.current[prevId] = {};
-                    nodeRef.current[prevId].isDisplay = true;
+          showEdge(edge, 2);
+          showNode(prev, 2);
+          const prevId = prev.id();
+          if (!nodeRef.current[prevId]) nodeRef.current[prevId] = {};
+          nodeRef.current[prevId].isDisplay = true;
 
-                    queue.push({ node: prev, from: nodeId });
-                }
-            });
+          queue.push({ node: prev, from: nodeId });
         }
+      });
+    }
+  };
+
+  const collapseNode = (nodeId) => {
+    const cy = cyInstanceRef.current;
+    if (!cy || !nodeId) return;
+
+    const node = cy.getElementById(nodeId);
+    const visited = new Set();
+    const queue = [node];
+
+    while (queue.length > 0) {
+      const node = queue.shift();
+      const nodeId = node.id();
+      if (visited.has(nodeId)) continue;
+      visited.add(nodeId);
+
+      // const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
+      const incomers = node.incomers("edge");
+
+      incomers.forEach((edge) => {
+        // incomingEdges.forEach((edge) => {
+        const source = edge.source();
+
+        hideEdge(edge, 2);
+        hideNode(source, 2);
+        if (!nodeRef.current[source.id()]) nodeRef.current[source.id()] = {};
+        nodeRef.current[source.id()].isDisplay = false;
+        nodeRef.current[source.id()].expanded = false;
+
+        queue.push(source);
+      });
+    }
+  };
+
+  useEffect(() => {
+    loadGraph(null);
+
+    window.forceReRenderNode = (nodeId) => {
+      const cy = cyInstanceRef.current;
+      const node = cy.getElementById(nodeId);
+      node.addClass("force-re-render");
+      node.removeClass("force-re-render");
     };
 
-    const collapseNode = (nodeId) => {
-        const cy = cyInstanceRef.current;
-        if (!cy || !nodeId) return;
+    window.handleToggleClick = (nodeId) => {
+      const cy = cyInstanceRef.current;
+      const ref = nodeRef.current[nodeId];
+      if (!ref) return;
 
-        const node = cy.getElementById(nodeId);
-        const visited = new Set();
-        const queue = [node];
+      if (ref.expanded) {
+        collapseNode(nodeId);
+      } else {
+        expandNode(nodeId);
+        cy.animate({
+          panBy: { x: -50, y: 0 },
+          duration: 400,
+          easing: "ease-in-out",
+        }); // cy.panBy({ x: -50, y: 0 });
+      }
+      ref.expanded = !ref.expanded;
 
-        while (queue.length > 0) {
-            const node = queue.shift();
-            const nodeId = node.id();
-            if (visited.has(nodeId)) continue;
-            visited.add(nodeId);
+      forceReRenderNode(nodeId);
+    };
 
-            // const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
-            const incomers = node.incomers('edge');
+    window.showInput = (nodeId) => {
+      const html = document.querySelector(
+        `.cy-node-label-html[data-node-id="${nodeId}"]`
+      );
+      if (html) {
+        const input = html.querySelector(".range-input");
+        if (input) input.style.display = "inline-block";
+      }
+    };
 
-            incomers.forEach((edge) => {
-                // incomingEdges.forEach((edge) => {
-                const source = edge.source();
+    window.hideInput = (nodeId) => {
+      const html = document.querySelector(
+        `.cy-node-label-html[data-node-id="${nodeId}"]`
+      );
+      if (html) {
+        const input = html.querySelector(".range-input");
+        if (input) input.style.display = "none";
+      }
+    };
 
-                hideEdge(edge, 2);
-                hideNode(source, 2);
-                if (!nodeRef.current[source.id()]) nodeRef.current[source.id()] = {};
-                nodeRef.current[source.id()].isDisplay = false;
-                nodeRef.current[source.id()].expanded = false;
+    window.handleInputChange = (
+      nodeId,
+      initialAmount,
+      amountValue,
+      percentageValue
+    ) => {
+      const cy = cyInstanceRef.current;
+      if (!cy || !nodeId) return;
 
-                queue.push(source);
-            });
+      if (!nodeRef.current[nodeId]) {
+        nodeRef.current[nodeId] = {};
+      }
+
+      // 값 저장
+      const calculatedAmount =
+        initialAmount * (1 + Number(percentageValue) / 100);
+
+      nodeRef.current[nodeId].amount = calculatedAmount;
+      nodeRef.current[nodeId].percentage = Number(percentageValue);
+
+      // 자식 node 비활성화
+      const node = cy.getElementById(nodeId);
+      if (!node || node.empty()) return;
+      const allChildNodes = node.predecessors("node");
+      allChildNodes.forEach((childNode) => {
+        const childId = childNode.id();
+        if (!nodeRef.current[childId]) {
+          nodeRef.current[childId] = {};
         }
+        nodeRef.current[childId].disabled = true;
+        const html = document.querySelector(
+          `.cy-node-label-html[data-node-id="${childId}"]`
+        );
+        if (html) {
+          const input = html.querySelector("input");
+          if (input) input.disabled = true;
+        }
+      });
+
+      // 부모 노드 값 업데이트
+      const queue = [node];
+      while (queue.length > 0) {
+        const node = queue.shift();
+        const outgoingEdge = node.outgoers("edge");
+        if (outgoingEdge.empty()) return;
+
+        const parentNode = outgoingEdge.target();
+        const role = outgoingEdge.data("role");
+
+        const parentNodeId = parentNode.id();
+
+        const parentNodeAmount =
+          nodeRef.current[parentNodeId].amount ||
+          parseNeo4jInt(parentNode.data("amount"));
+
+        let calculatedParentNodeAmount = 0;
+        if (role === "positive") {
+          calculatedParentNodeAmount =
+            parentNodeAmount + (calculatedAmount - amountValue);
+          nodeRef.current[parentNodeId].amount = calculatedParentNodeAmount;
+        } else {
+          calculatedParentNodeAmount =
+            parentNodeAmount - (calculatedAmount - amountValue);
+          nodeRef.current[parentNodeId].amount = calculatedParentNodeAmount;
+        }
+        const parentPercentage =
+          (calculatedParentNodeAmount /
+            nodeRef.current[parentNodeId].initialAmount -
+            1) *
+          100;
+
+        nodeRef.current[parentNodeId].percentage = parentPercentage;
+        queue.push(parentNode);
+        forceReRenderNode(parentNodeId);
+      }
     };
+  }, []);
 
-    useEffect(() => {
-        loadGraph(null);
+  useEffect(() => {
+    if (!cyRef.current) return;
+    const cy = cytoscape({
+      container: cyRef.current,
+      style: [
+        {
+          selector: "node",
+          style: {
+            width: 190,
+            height: 60,
+            shape: "rectangle",
+          },
+        },
+        {
+          selector: "edge",
+          style: {
+            label: (ele) => {
+              return `${ele.data("role") === "negative" ? "-" : "+"}`;
+            },
+            width: 1,
+            "font-size": "30px",
+            "line-color": "#ccc",
+            "target-arrow-shape": "triangle",
+            "target-arrow-color": "#ccc",
+            "curve-style": "round-taxi",
+            "taxi-direction": "leftward",
+            "taxi-turn": 20,
+            "taxi-turn-min-distance": 10,
+          },
+        },
+      ],
+    });
 
-        window.forceReRenderNode = (nodeId) => {
-            const cy = cyInstanceRef.current;
-            const node = cy.getElementById(nodeId);
-            node.addClass('force-re-render');
-            node.removeClass('force-re-render');
-        };
+    cy.add([...graphData.nodes, ...graphData.edges]);
 
-        window.handleToggleClick = (nodeId) => {
-            const cy = cyInstanceRef.current;
-            const ref = nodeRef.current[nodeId];
-            if (!ref) return;
+    // cy.on('tap', 'node', (evt) => {
+    //     console.log('node 클릭:', evt.target.data());
+    // });
 
-            if (ref.expanded) {
-                collapseNode(nodeId);
-            } else {
-                expandNode(nodeId);
-                cy.animate({
-                    panBy: { x: -50, y: 0 },
-                    duration: 400,
-                    easing: 'ease-in-out',
-                }); // cy.panBy({ x: -50, y: 0 });
-            }
-            ref.expanded = !ref.expanded;
+    // cy.on('tap', 'edge', (evt) => {
+    //     console.log('edge 클릭:', evt.target.data());
+    // });
 
-            forceReRenderNode(nodeId);
-        };
+    const layout = cy
+      .layout({
+        name: "dagre",
+        rankDir: "RL",
+        nodeSep: 25,
+        rankSep: 80,
+        edgeSep: 60,
+        padding: 20,
+        animate: true,
+      })
+      .run();
 
-        window.showInput = (nodeId) => {
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('.range-input');
-                if (input) input.style.display = 'inline-block';
-            }
-        };
+    // this.nextElementSibling.textContent = '${data.name} ' + this.value;"
+    cy.nodeHtmlLabel([
+      {
+        query: "node",
+        halign: "center",
+        valign: "center",
+        tpl: (data) => {
+          const ref = nodeRef.current?.[data.id] || {};
 
-        window.hideInput = (nodeId) => {
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('.range-input');
-                if (input) input.style.display = 'none';
-            }
-        };
+          if (ref.isDisplay === false) return "";
 
-        window.handleInputChange = (nodeId, initialAmount, amountValue, percentageValue) => {
-            const cy = cyInstanceRef.current;
-            if (!cy || !nodeId) return;
+          const initialAmount = parseNeo4jInt(data.amount);
+          if (ref.initialAmount === undefined) {
+            ref.initialAmount = initialAmount;
+          }
 
-            if (!nodeRef.current[nodeId]) {
-                nodeRef.current[nodeId] = {};
-            }
-            // 값 저장
-            const calculatedAmount = initialAmount * (1 + Number(percentageValue) / 100);
-            nodeRef.current[nodeId].amount = calculatedAmount;
-            nodeRef.current[nodeId].percentage = Number(percentageValue);
+          const calculatedAmount = ref.amount;
+          const amountValue =
+            calculatedAmount === undefined ? initialAmount : calculatedAmount;
+          const percentageValue =
+            ref.percentage === undefined ? 0 : ref.percentage;
+          const disabled = ref.disabled ? "disabled" : "";
 
-            // 자식 node 비활성화
-            const node = cy.getElementById(nodeId);
-            if (!node || node.empty()) return;
-            const allChildNodes = node.predecessors('node');
-            allChildNodes.forEach((childNode) => {
-                const childId = childNode.id();
-                if (!nodeRef.current[childId]) {
-                    nodeRef.current[childId] = {};
-                }
-                nodeRef.current[childId].disabled = true;
-                const html = document.querySelector(`.cy-node-label-html[data-node-id="${childId}"]`);
-                if (html) {
-                    const input = html.querySelector('input');
-                    if (input) input.disabled = true;
-                }
-            });
-        };
-    }, []);
+          const expanded = ref.expanded === true;
+          const toggleSymbol = expanded ? "&lt;" : "&gt;";
 
-    useEffect(() => {
-        if (!cyRef.current) return;
-        const cy = cytoscape({
-            container: cyRef.current,
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        width: 190,
-                        height: 60,
-                        shape: 'rectangle',
-                    },
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        label: (ele) => {
-                            return `${ele.data('role') === 'negative' ? '-' : '+'}`;
-                        },
-                        width: 1,
-                        'font-size': '30px',
-                        'line-color': '#ccc',
-                        'target-arrow-shape': 'triangle',
-                        'target-arrow-color': '#ccc',
-                        'curve-style': 'round-taxi',
-                        'taxi-direction': 'leftward',
-                        'taxi-turn': 20,
-                        'taxi-turn-min-distance': 10,
-                    },
-                },
-            ],
-        });
+          const node = cy.getElementById(data.id);
+          const allChildNodes = node.predecessors("node");
+          const isLeaf = allChildNodes.length === 0 ? true : false;
 
-        cy.add([...graphData.nodes, ...graphData.edges]);
+          const excludedNames = [
+            "액티비티수차합",
+            "액티비티단가합",
+            "생산입고",
+            "공정출고",
+            "비용계획합",
+          ];
 
-        // cy.on('tap', 'node', (evt) => {
-        //     console.log('node 클릭:', evt.target.data());
-        // });
-
-        // cy.on('tap', 'edge', (evt) => {
-        //     console.log('edge 클릭:', evt.target.data());
-        // });
-
-        const layout = cy
-            .layout({
-                name: 'dagre',
-                rankDir: 'RL',
-                nodeSep: 25,
-                rankSep: 80,
-                edgeSep: 60,
-                padding: 20,
-                animate: true,
-            })
-            .run();
-
-        // this.nextElementSibling.textContent = '${data.name} ' + this.value;"
-        cy.nodeHtmlLabel([
-            {
-                query: 'node',
-                halign: 'center',
-                valign: 'center',
-                tpl: (data) => {
-                    const ref = nodeRef.current?.[data.id] || {};
-
-                    if (ref.isDisplay === false) return '';
-
-                    const initialAmount = parseNeo4jInt(data.amount);
-                    if (ref.initialAmount === undefined) {
-                        ref.initialAmount = initialAmount;
-                    }
-
-                    const calculatedAmount = ref.amount;
-                    const amountValue = calculatedAmount === undefined ? initialAmount : calculatedAmount;
-                    const percentageValue = ref.percentage === undefined ? 0 : ref.percentage;
-                    const disabled = ref.disabled ? 'disabled' : '';
-
-                    const expanded = ref.expanded === true;
-                    const toggleSymbol = expanded ? '&lt;' : '&gt;';
-
-                    const node = cy.getElementById(data.id);
-                    const allChildNodes = node.predecessors('node');
-                    const isLeaf = allChildNodes.length === 0 ? true : false;
-
-                    const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
-
-                    return `
+          return `
                     <div 
                       class="cy-node-label-html" 
                       data-node-id="${data.id}"
@@ -334,9 +393,9 @@ export default function TestPage2() {
                       "
                     >  
                         ${
-                            isLeaf
-                                ? ''
-                                : `<div
+                          isLeaf
+                            ? ""
+                            : `<div
                                     style="
                             position: absolute;
                             right: -13px;
@@ -364,9 +423,9 @@ export default function TestPage2() {
                         <div>${data.name}</div>
                         
                         ${
-                            excludedNames.includes(data.name)
-                                ? ''
-                                : `
+                          excludedNames.includes(data.name)
+                            ? ""
+                            : `
                                 <input 
                             class="range-input"
                             type="range"
@@ -375,7 +434,9 @@ export default function TestPage2() {
                             min="${-100}"
                             max="${100}"
                             oninput="
-                                handleInputChange('${data.id}', ${initialAmount}, ${amountValue}, this.value);
+                                handleInputChange('${
+                                  data.id
+                                }', ${initialAmount}, ${amountValue}, this.value);
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
                                 if (percentageDiv) percentageDiv.textContent = this.value + '%';
                             "
@@ -386,51 +447,57 @@ export default function TestPage2() {
                         />`
                         }
                         <div class="percentage">${percentageValue}%</div>
-                        <div>${amountValue}</div>
+                        <div>₩ ${amountValue}</div>
+                        <div>Old Amount: ${initialAmount}</div>
+                        <div>Changed Amount: ${
+                          amountValue - initialAmount
+                        }</div>
                     </div>
                   `;
-                },
-            },
-        ]);
+        },
+      },
+    ]);
 
-        cy.nodes().forEach((node) => {
-            const nodeId = node.id();
-            if (!nodeRef.current[nodeId]) nodeRef.current[nodeId] = {};
-            nodeRef.current[nodeId].isDisplay = false;
+    cy.nodes().forEach((node) => {
+      const nodeId = node.id();
+      if (!nodeRef.current[nodeId]) nodeRef.current[nodeId] = {};
+      nodeRef.current[nodeId].isDisplay = false;
 
-            hideNode(node, 2);
-        });
+      hideNode(node, 2);
+    });
 
-        cy.edges().forEach((edge) => {
-            hideEdge(edge, 2);
-        });
+    cy.edges().forEach((edge) => {
+      hideEdge(edge, 2);
+    });
 
-        const roots = cy.nodes().filter((node) => node.outgoers('edge').length === 0);
+    const roots = cy
+      .nodes()
+      .filter((node) => node.outgoers("edge").length === 0);
 
-        layout.on('layoutstop', () => {
-            roots.forEach((root) => {
-                // root.show();
-                // root.data('isHidden', false);
-                // root.animate({ style: { opacity: 1 }, duration: 5 });
-                showNode(root, 2);
-                const rootId = root.id();
-                nodeRef.current[rootId].isDisplay = true;
-                nodeRef.current[rootId].expanded = false;
-            });
+    layout.on("layoutstop", () => {
+      roots.forEach((root) => {
+        // root.show();
+        // root.data('isHidden', false);
+        // root.animate({ style: { opacity: 1 }, duration: 5 });
+        showNode(root, 2);
+        const rootId = root.id();
+        nodeRef.current[rootId].isDisplay = true;
+        nodeRef.current[rootId].expanded = false;
+      });
 
-            cy.zoom({
-                level: 0.6,
-            });
+      cy.zoom({
+        level: 0.6,
+      });
 
-            cy.center(roots);
-        });
+      cy.center(roots);
+    });
 
-        cyInstanceRef.current = cy;
-    }, [graphData]);
+    cyInstanceRef.current = cy;
+  }, [graphData]);
 
-    return (
-        <>
-            {/* <input
+  return (
+    <>
+      {/* <input
                 type="range"
                 min={0}
                 max={10}
@@ -438,16 +505,16 @@ export default function TestPage2() {
                     console.log('normal input slider value', e.currentTarget.value);
                 }}
             /> */}
-            <div
-                id="cy"
-                ref={cyRef}
-                style={{
-                    width: '1000px',
-                    height: '600px',
-                    border: '1px solid #eee',
-                    margin: '20px',
-                }}
-            />
-        </>
-    );
+      <div
+        id="cy"
+        ref={cyRef}
+        style={{
+          width: "1000px",
+          height: "600px",
+          border: "1px solid #eee",
+          margin: "20px",
+        }}
+      />
+    </>
+  );
 }
