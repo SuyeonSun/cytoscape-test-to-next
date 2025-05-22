@@ -164,6 +164,7 @@ export default function TestPage2() {
         loadGraph(null);
 
         window.handleToggleClick = (nodeId) => {
+            const cy = cyInstanceRef.current;
             const ref = nodeRef.current[nodeId];
             if (!ref) return;
 
@@ -171,6 +172,11 @@ export default function TestPage2() {
                 collapseNode(nodeId);
             } else {
                 expandNode(nodeId);
+                cy.animate({
+                    panBy: { x: -50, y: 0 },
+                    duration: 400,
+                    easing: 'ease-in-out',
+                }); // cy.panBy({ x: -50, y: 0 });
             }
             ref.expanded = !ref.expanded;
 
@@ -267,15 +273,17 @@ export default function TestPage2() {
         //     console.log('edge 클릭:', evt.target.data());
         // });
 
-        cy.layout({
-            name: 'dagre',
-            rankDir: 'RL',
-            nodeSep: 25,
-            rankSep: 80,
-            edgeSep: 60,
-            padding: 20,
-            animate: true,
-        }).run();
+        const layout = cy
+            .layout({
+                name: 'dagre',
+                rankDir: 'RL',
+                nodeSep: 25,
+                rankSep: 80,
+                edgeSep: 60,
+                padding: 20,
+                animate: true,
+            })
+            .run();
 
         // this.nextElementSibling.textContent = '${data.name} ' + this.value;"
         cy.nodeHtmlLabel([
@@ -389,20 +397,24 @@ export default function TestPage2() {
         });
 
         const roots = cy.nodes().filter((node) => node.outgoers('edge').length === 0);
-        if (roots.length === 0) {
-            console.log('루트 노드를 찾을 수 없습니다.');
-            return;
-        }
-        roots.forEach((root) => {
-            // root.show();
-            // root.data('isHidden', false);
-            // root.animate({ style: { opacity: 1 }, duration: 5 });
-            showNode(root, 2);
-            const rootId = root.id();
-            nodeRef.current[rootId].isDisplay = true;
-            nodeRef.current[rootId].expanded = false;
+
+        layout.on('layoutstop', () => {
+            roots.forEach((root) => {
+                // root.show();
+                // root.data('isHidden', false);
+                // root.animate({ style: { opacity: 1 }, duration: 5 });
+                showNode(root, 2);
+                const rootId = root.id();
+                nodeRef.current[rootId].isDisplay = true;
+                nodeRef.current[rootId].expanded = false;
+            });
+
+            cy.zoom({
+                level: 0.6,
+            });
+
+            cy.center(roots);
         });
-        cy.center(roots);
 
         cyInstanceRef.current = cy;
     }, [graphData]);
