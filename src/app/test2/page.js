@@ -386,7 +386,6 @@ export default function TestPage2() {
                         />`
                         }
                         <div class="percentage">${percentageValue}%</div>
-                        <div>${percentageValue}</div>
                         <div>${amountValue}</div>
                     </div>
                   `;
