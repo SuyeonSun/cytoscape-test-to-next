@@ -153,8 +153,9 @@ export default function TestPage2() {
         }
     };
 
-    // 노드 강제 업데이트
-    const forceReRenderNode = (node) => {
+    const forceReRenderNode = (nodeId) => {
+        const cy = cyInstanceRef.current;
+        const node = cy.getElementById(nodeId);
         node.addClass('force-re-render');
         node.removeClass('force-re-render');
     };
@@ -173,9 +174,7 @@ export default function TestPage2() {
             }
             ref.expanded = !ref.expanded;
 
-            const cy = cyInstanceRef.current;
-            const node = cy.getElementById(nodeId);
-            forceReRenderNode(node);
+            forceReRenderNode(nodeId);
         };
 
         window.handleInputChange = (nodeId, amount) => {
@@ -242,23 +241,23 @@ export default function TestPage2() {
 
         cy.add([...graphData.nodes, ...graphData.edges]);
 
-        cy.on('mouseover', 'node', (evt) => {
-            const nodeId = evt.target.id();
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('input');
-                if (input) input.style.display = 'inline-block';
-            }
-        });
+        // cy.on('mouseover', 'node', (evt) => {
+        //     const nodeId = evt.target.id();
+        //     const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+        //     if (html) {
+        //         const input = html.querySelector('input');
+        //         if (input) input.style.display = 'inline-block';
+        //     }
+        // });
 
-        cy.on('mouseout', 'node', (evt) => {
-            const nodeId = evt.target.id();
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('input');
-                if (input) input.style.display = 'none';
-            }
-        });
+        // cy.on('mouseout', 'node', (evt) => {
+        //     const nodeId = evt.target.id();
+        //     const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+        //     if (html) {
+        //         const input = html.querySelector('input');
+        //         if (input) input.style.display = 'none';
+        //     }
+        // });
 
         // cy.on('tap', 'node', (evt) => {
         //     console.log('node 클릭:', evt.target.data());
@@ -349,7 +348,7 @@ export default function TestPage2() {
                         } 
                         
                         <div>${data.name}</div>
-                        <div>${amountValue}</div>
+                        
                         ${
                             excludedNames.includes(data.name)
                                 ? ''
@@ -360,13 +359,14 @@ export default function TestPage2() {
                             min="${0}"
                             max="${100000000000}"
                             oninput="
-                                handleInputChange('${data.id}', this.value); 
+                                handleInputChange('${data.id}', this.value);
                                 this.nextElementSibling.textContent = this.value;"
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
-                            style="width: 100px; pointer-events: auto; display: none"
+                            style="width: 100px; pointer-events: auto;"
                         />`
                         }
+                        <div>${amountValue}</div>
                     </div>
                   `;
                 },
