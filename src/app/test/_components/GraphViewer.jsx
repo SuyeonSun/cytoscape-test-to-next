@@ -314,6 +314,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             showEdge(edge, layoutModeRef.current);
         });
 
+        const layout = cy
+            .layout({
+                name: 'random', // 또는 'preset'
+                animate: false, // 초기 위치는 즉시 적용
+            })
+            .run();
+
         cy.layout({
             name: 'dagre',
             rankDir: 'RL',
