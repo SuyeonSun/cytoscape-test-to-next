@@ -183,6 +183,22 @@ export default function TestPage2() {
             forceReRenderNode(nodeId);
         };
 
+        window.showInput = (nodeId) => {
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('.range-input');
+                if (input) input.style.display = 'inline-block';
+            }
+        };
+
+        window.hideInput = (nodeId) => {
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('.range-input');
+                if (input) input.style.display = 'none';
+            }
+        };
+
         window.handleInputChange = (nodeId, amountValue, percentageValue) => {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
@@ -249,24 +265,6 @@ export default function TestPage2() {
 
         cy.add([...graphData.nodes, ...graphData.edges]);
 
-        cy.on('mouseover', 'node', (evt) => {
-            const nodeId = evt.target.id();
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('.range-input');
-                if (input) input.style.display = 'inline-block';
-            }
-        });
-
-        cy.on('mouseout', 'node', (evt) => {
-            const nodeId = evt.target.id();
-            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
-            if (html) {
-                const input = html.querySelector('.range-input');
-                if (input) input.style.display = 'none';
-            }
-        });
-
         // cy.on('tap', 'node', (evt) => {
         //     console.log('node 클릭:', evt.target.data());
         // });
@@ -313,11 +311,12 @@ export default function TestPage2() {
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
-                    // 원래 노드의 height와 width가 같은 것이 hover 작동을 바람직하도록 만든다.
                     return `
                     <div 
                       class="cy-node-label-html" 
                       data-node-id="${data.id}"
+                      onmouseover="showInput('${data.id}');"
+                      onmouseout="hideInput('${data.id}');"
                       style="
                       text-align:center; 
                       pointer-events:auto; 
