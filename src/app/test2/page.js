@@ -199,7 +199,7 @@ export default function TestPage2() {
             }
         };
 
-        window.handleInputChange = (nodeId, amountValue, percentageValue) => {
+        window.handleInputChange = (nodeId, initialAmount, amountValue, percentageValue) => {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
 
@@ -207,9 +207,9 @@ export default function TestPage2() {
                 nodeRef.current[nodeId] = {};
             }
             // 값 저장
-            const calculatedAmount = amountValue + (amountValue * percentageValue) / 100;
+            const calculatedAmount = initialAmount * (1 + Number(percentageValue) / 100);
             nodeRef.current[nodeId].amount = calculatedAmount;
-            nodeRef.current[nodeId].percentage = percentageValue;
+            nodeRef.current[nodeId].percentage = Number(percentageValue);
 
             // 자식 node 비활성화
             const node = cy.getElementById(nodeId);
@@ -296,7 +296,11 @@ export default function TestPage2() {
 
                     if (ref.isDisplay === false) return '';
 
-                    const initialAmount = parseNeo4jInt(data.amount) || 0;
+                    const initialAmount = parseNeo4jInt(data.amount);
+                    if (ref.initialAmount === undefined) {
+                        ref.initialAmount = initialAmount;
+                    }
+
                     const calculatedAmount = ref.amount;
                     const amountValue = calculatedAmount === undefined ? initialAmount : calculatedAmount;
                     const percentageValue = ref.percentage === undefined ? 0 : ref.percentage;
@@ -370,7 +374,7 @@ export default function TestPage2() {
                             min="${-100}"
                             max="${100}"
                             oninput="
-                                handleInputChange('${data.id}', ${amountValue}, this.value);
+                                handleInputChange('${data.id}', ${initialAmount}, ${amountValue}, this.value);
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
                                 if (percentageDiv) percentageDiv.textContent = this.value;
                             "
