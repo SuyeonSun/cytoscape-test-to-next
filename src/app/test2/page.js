@@ -215,8 +215,8 @@ export default function TestPage2() {
                 {
                     selector: 'node',
                     style: {
-                        width: 150,
-                        height: 65,
+                        width: 190,
+                        height: 60,
                         shape: 'rectangle',
                     },
                 },
@@ -242,13 +242,31 @@ export default function TestPage2() {
 
         cy.add([...graphData.nodes, ...graphData.edges]);
 
-        cy.on('tap', 'node', (evt) => {
-            console.log('node 클릭:', evt.target.data());
+        cy.on('mouseover', 'node', (evt) => {
+            const nodeId = evt.target.id();
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('input');
+                if (input) input.style.display = 'inline-block';
+            }
         });
 
-        cy.on('tap', 'edge', (evt) => {
-            console.log('edge 클릭:', evt.target.data());
+        cy.on('mouseout', 'node', (evt) => {
+            const nodeId = evt.target.id();
+            const html = document.querySelector(`.cy-node-label-html[data-node-id="${nodeId}"]`);
+            if (html) {
+                const input = html.querySelector('input');
+                if (input) input.style.display = 'none';
+            }
         });
+
+        // cy.on('tap', 'node', (evt) => {
+        //     console.log('node 클릭:', evt.target.data());
+        // });
+
+        // cy.on('tap', 'edge', (evt) => {
+        //     console.log('edge 클릭:', evt.target.data());
+        // });
 
         cy.layout({
             name: 'dagre',
@@ -285,6 +303,7 @@ export default function TestPage2() {
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
+                    // 원래 노드의 height와 width가 같은 것이 hover 작동을 바람직하도록 만든다.
                     return `
                     <div 
                       class="cy-node-label-html" 
@@ -297,7 +316,7 @@ export default function TestPage2() {
                       border-radius: 10px;
                       box-shadow: 0 1px 5px rgba(0,0,0,0.1);
                       padding: 10px;
-                      width: 160px;
+                      width: 200px;
                       position: relative;
                       "
                     >  
@@ -330,6 +349,7 @@ export default function TestPage2() {
                         } 
                         
                         <div>${data.name}</div>
+                        <div>${amountValue}</div>
                         ${
                             excludedNames.includes(data.name)
                                 ? ''
@@ -344,10 +364,9 @@ export default function TestPage2() {
                                 this.nextElementSibling.textContent = this.value;"
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
-                            style="width: 100px; pointer-events: auto;"
+                            style="width: 100px; pointer-events: auto; display: none"
                         />`
                         }
-                      <div>${amountValue}</div>
                     </div>
                   `;
                 },
