@@ -270,19 +270,15 @@ export default function TestPage2() {
                     const initialAmount = parseNeo4jInt(data.amount) || 0;
                     const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
                     const disabled = ref.disabled ? 'disabled' : '';
+
                     const expanded = ref.expanded === true;
                     const toggleSymbol = expanded ? '&lt;' : '&gt;';
 
-                    const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
+                    const node = cy.getElementById(data.id);
+                    const allChildNodes = node.predecessors('node');
+                    const isLeaf = allChildNodes.length === 0 ? true : false;
 
-                    if (excludedNames.includes(data.name)) {
-                        return `
-                            <div class="cy-node-label-html" data-node-id="${data.id}" style="text-align:center; pointer-events:auto;">
-                                <div>${data.name}</div>
-                                <div>${amountValue}</div>
-                            </div>
-                        `;
-                    }
+                    const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
                     return `
                     <div 
@@ -299,9 +295,12 @@ export default function TestPage2() {
                       width: 160px;
                       position: relative;
                       "
-                    >   
-                        <div 
-                            style="
+                    >  
+                        ${
+                            isLeaf
+                                ? ''
+                                : `<div
+                                    style="
                             position: absolute;
                             right: -13px;
                             top: 50%;
@@ -319,12 +318,17 @@ export default function TestPage2() {
                             pointer-events: auto;
                             cursor: pointer;
                             "
-                            onclick="handleToggleClick('${data.id}')"
-                        >
-                            ${toggleSymbol}
-                        </div>
+                                    onclick="handleToggleClick('${data.id}')"
+                                >
+                                    ${toggleSymbol}
+                                </div>`
+                        } 
+                        
                         <div>${data.name}</div>
-                        <input 
+                        ${
+                            excludedNames.includes(data.name)
+                                ? ''
+                                : `<input 
                             type="range"
                             ${disabled}
                             value="${amountValue}"
@@ -336,7 +340,8 @@ export default function TestPage2() {
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
                             style="width: 100px; pointer-events: auto;"
-                        />
+                        />`
+                        }
                       <div>${amountValue}</div>
                     </div>
                   `;
