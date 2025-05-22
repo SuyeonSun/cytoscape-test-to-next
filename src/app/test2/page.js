@@ -360,13 +360,15 @@ export default function TestPage2() {
                             max="${100000000000}"
                             oninput="
                                 handleInputChange('${data.id}', this.value);
-                                this.nextElementSibling.textContent = this.value;"
+                                const amountValueDiv = this.closest('.cy-node-label-html')?.querySelector('.amount-value');
+                                if (amountValueDiv) amountValueDiv.textContent = this.value;
+                            "
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
                             style="width: 100px; pointer-events: auto;"
                         />`
                         }
-                        <div>${amountValue}</div>
+                        <div class="amount-value">${amountValue}</div>
                     </div>
                   `;
                 },
