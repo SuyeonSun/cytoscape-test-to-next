@@ -183,7 +183,7 @@ export default function TestPage2() {
             forceReRenderNode(nodeId);
         };
 
-        window.handleInputChange = (nodeId, amount) => {
+        window.handleInputChange = (nodeId, percentage) => {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
 
@@ -191,7 +191,10 @@ export default function TestPage2() {
                 nodeRef.current[nodeId] = {};
             }
             // 값 저장
-            nodeRef.current[nodeId].amount = amount;
+            const originalAmount = nodeRef.current[nodeId].amount;
+            const calculatedAmount = (originalAmount * percentage) / 100;
+            nodeRef.current[nodeId].amount = calculatedAmount;
+            nodeRef.current[nodeId].percentage = percentage;
 
             // 자식 node 비활성화
             const node = cy.getElementById(nodeId);
@@ -296,9 +299,10 @@ export default function TestPage2() {
 
                     if (ref.isDisplay === false) return '';
 
-                    const savedAmount = ref.amount;
                     const initialAmount = parseNeo4jInt(data.amount) || 0;
-                    const amountValue = savedAmount === undefined ? initialAmount : savedAmount;
+                    const calculatedAmount = ref.amount;
+                    const amountValue = calculatedAmount === undefined ? initialAmount : calculatedAmount;
+                    const percentageValue = ref.percentage === undefined ? 0 : ref.percentage;
                     const disabled = ref.disabled ? 'disabled' : '';
 
                     const expanded = ref.expanded === true;
@@ -364,20 +368,20 @@ export default function TestPage2() {
                             class="range-input"
                             type="range"
                             ${disabled}
-                            value="${amountValue}"
+                            value="${percentageValue}"
                             min="${0}"
-                            max="${100000000000}"
+                            max="${100}"
                             oninput="
                                 handleInputChange('${data.id}', this.value);
-                                const amountValueDiv = this.closest('.cy-node-label-html')?.querySelector('.amount-value');
-                                if (amountValueDiv) amountValueDiv.textContent = this.value;
+                                const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
+                                if (percentageDiv) percentageDiv.textContent = this.value;
                             "
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
                             style="width: 100px; pointer-events: auto; display: none"
                         />`
                         }
-                        <div class="amount-value">${amountValue}</div>
+                        <div class="percentage">${percentageValue}%</div>
                     </div>
                   `;
                 },
