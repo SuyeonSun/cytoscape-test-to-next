@@ -183,7 +183,7 @@ export default function TestPage2() {
             forceReRenderNode(nodeId);
         };
 
-        window.handleInputChange = (nodeId, percentageValue, amountValue) => {
+        window.handleInputChange = (nodeId, amountValue, percentageValue) => {
             const cy = cyInstanceRef.current;
             if (!cy || !nodeId) return;
 
@@ -191,7 +191,7 @@ export default function TestPage2() {
                 nodeRef.current[nodeId] = {};
             }
             // 값 저장
-            const calculatedAmount = (amountValue * percentageValue) / 100;
+            const calculatedAmount = amountValue + (amountValue * percentageValue) / 100;
             nodeRef.current[nodeId].amount = calculatedAmount;
             nodeRef.current[nodeId].percentage = percentageValue;
 
@@ -368,10 +368,10 @@ export default function TestPage2() {
                             type="range"
                             ${disabled}
                             value="${percentageValue}"
-                            min="${0}"
+                            min="${-100}"
                             max="${100}"
                             oninput="
-                                handleInputChange('${data.id}', this.value, ${amountValue});
+                                handleInputChange('${data.id}', ${amountValue}, this.value);
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
                                 if (percentageDiv) percentageDiv.textContent = this.value;
                             "
