@@ -377,7 +377,7 @@ export default function TestPage2() {
                             oninput="
                                 handleInputChange('${data.id}', ${initialAmount}, ${amountValue}, this.value);
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
-                                if (percentageDiv) percentageDiv.textContent = this.value;
+                                if (percentageDiv) percentageDiv.textContent = this.value + '%';
                             "
                             onmouseup="forceReRenderNode('${data.id}')"
                             onmousedown="event.stopPropagation();"
