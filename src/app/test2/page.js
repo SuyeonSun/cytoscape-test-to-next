@@ -153,15 +153,15 @@ export default function TestPage2() {
         }
     };
 
-    const forceReRenderNode = (nodeId) => {
-        const cy = cyInstanceRef.current;
-        const node = cy.getElementById(nodeId);
-        node.addClass('force-re-render');
-        node.removeClass('force-re-render');
-    };
-
     useEffect(() => {
         loadGraph(null);
+
+        window.forceReRenderNode = (nodeId) => {
+            const cy = cyInstanceRef.current;
+            const node = cy.getElementById(nodeId);
+            node.addClass('force-re-render');
+            node.removeClass('force-re-render');
+        };
 
         window.handleToggleClick = (nodeId) => {
             const cy = cyInstanceRef.current;
@@ -366,7 +366,8 @@ export default function TestPage2() {
                         ${
                             excludedNames.includes(data.name)
                                 ? ''
-                                : `<input 
+                                : `
+                                <input 
                             class="range-input"
                             type="range"
                             ${disabled}
@@ -378,6 +379,7 @@ export default function TestPage2() {
                                 const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
                                 if (percentageDiv) percentageDiv.textContent = this.value;
                             "
+                            onmouseup="forceReRenderNode('${data.id}')"
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
                             style="width: 100px; pointer-events: auto; display: none"
