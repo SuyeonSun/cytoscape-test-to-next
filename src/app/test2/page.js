@@ -135,9 +135,11 @@ export default function TestPage2() {
             if (visited.has(nodeId)) continue;
             visited.add(nodeId);
 
-            const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
+            // const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
+            const incomers = node.incomers('edge');
 
-            incomingEdges.forEach((edge) => {
+            incomers.forEach((edge) => {
+                // incomingEdges.forEach((edge) => {
                 const source = edge.source();
 
                 hideEdge(edge, 2);
