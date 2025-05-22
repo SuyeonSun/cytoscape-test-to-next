@@ -373,6 +373,7 @@ export default function TestPage2() {
             showNode(root, 2);
             const rootId = root.id();
             nodeRef.current[rootId].isDisplay = true;
+            nodeRef.current[rootId].expanded = false;
         });
         cy.center(roots);
 
