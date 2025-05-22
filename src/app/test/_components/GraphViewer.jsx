@@ -301,7 +301,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
         });
         cy.style().selector('edge').style({ 'curve-style': 'straight' }).update();
 
-        cyInstanceRef.current = cy;
+        // cyInstanceRef.current = cy;
     };
 
     const applyDagreLayout = () => {
@@ -332,7 +332,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
 
         cy.style().selector('edge').style({ 'curve-style': 'round-taxi' }).update(); // "straight"
 
-        cyInstanceRef.current = cy;
+        // cyInstanceRef.current = cy;
     };
 
     const applyMindmapLayout = () => {
@@ -396,7 +396,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
             cy.center(roots);
         });
 
-        cyInstanceRef.current = cy;
+        // cyInstanceRef.current = cy;
     };
 
     const buttonStyle = {
