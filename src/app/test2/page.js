@@ -238,7 +238,7 @@ export default function TestPage2() {
             const cy = cyInstanceRef.current;
             const node = cy.getElementById(nodeId);
 
-            // 부모가 여러개라면?
+            // TODO: 부모가 여러개라면?
             const parentNode = node.outgoers('node');
             const parentNodeId = parentNode.id();
             if (!parentNode.data('name')) return;
@@ -320,16 +320,14 @@ export default function TestPage2() {
                 valign: 'center',
                 tpl: (data) => {
                     const ref = nodeRef.current?.[data.id] || {};
-
                     if (ref.isDisplay === false) return '';
 
-                    // TODO: Math.round()
                     const initialAmount = Math.round(parseNeo4jInt(data.amount));
                     if (ref.initialAmount === undefined) {
                         ref.initialAmount = initialAmount;
                     }
 
-                    const amountValue = ref.amount === undefined ? initialAmount : ref.amount; // 현재값
+                    const amountValue = ref.amount === undefined ? initialAmount : ref.amount;
                     ref.amount = amountValue;
 
                     const percentageValue = ref.percentage === undefined ? 0 : ref.percentage;
@@ -340,89 +338,103 @@ export default function TestPage2() {
 
                     const node = cy.getElementById(data.id);
                     const allChildNodes = node.predecessors('node');
-                    const isLeaf = allChildNodes.length === 0 ? true : false;
+                    const isLeaf = allChildNodes.length === 0;
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
                     return `
-                    <div 
-                      class="cy-node-label-html" 
-                      data-node-id="${data.id}"
-                      onmouseover="showInput('${data.id}');"
-                      onmouseout="hideInput('${data.id}');"
-                      style="
-                      text-align:center; 
-                      pointer-events:auto; 
-                      background: white;
-                      border: 2px solid #90caf9;
-                      border-radius: 10px;
-                      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-                      padding: 10px;
-                      width: 200px;
-                      position: relative;
-                      "
-                    >  
-                        ${
-                            isLeaf
-                                ? ''
-                                : `<div
+                <div 
+                    class="cy-node-label-html" 
+                    data-node-id="${data.id}"
+                    onmouseover="showInput('${data.id}');"
+                    onmouseout="hideInput('${data.id}');"
+                    style="
+                        text-align:center; 
+                        pointer-events:auto; 
+                        background: white;
+                        border: 2px solid #90caf9;
+                        border-radius: 10px;
+                        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+                        padding: 10px;
+                        width: 200px;
+                        position: relative;
+                    "
+                >  
+                    ${
+                        isLeaf
+                            ? ''
+                            : `<div
                                     style="
-                            position: absolute;
-                            right: -13px;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            background: white;
-                            border: 1px solid #90caf9;
-                            border-radius: 50%;
-                            width: 20px;
-                            height: 20px;
-                            font-weight: bold;
-                            font-size: 14px;
-                            text-align: center;
-                            line-height: 20px;
-                            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-                            pointer-events: auto;
-                            cursor: pointer;
-                            "
+                                        position: absolute;
+                                        right: -13px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        background: white;
+                                        border: 1px solid #90caf9;
+                                        border-radius: 50%;
+                                        width: 20px;
+                                        height: 20px;
+                                        font-weight: bold;
+                                        font-size: 14px;
+                                        text-align: center;
+                                        line-height: 20px;
+                                        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+                                        pointer-events: auto;
+                                        cursor: pointer;
+                                    "
                                     onclick="handleToggleClick('${data.id}')"
                                 >
                                     ${toggleSymbol}
                                 </div>`
-                        } 
-                        
+                    }
+                
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>${data.name}</div>
-                        
-                        ${
-                            excludedNames.includes(data.name)
-                                ? ''
-                                : `
-                                <input 
+                        ${!excludedNames.includes(data.name) ? `<div class="percentage">${percentageValue}%</div>` : ''}
+                        <div>Unit: 만원</div>
+                    </div>
+                
+                    <div>₩ ${amountValue}</div>
+                
+                    ${
+                        excludedNames.includes(data.name)
+                            ? ''
+                            : `
+                    <div>
+                        <div>Old Amount: ${initialAmount}</div>
+                        <div>Changed Amount: ${amountValue - initialAmount}</div>
+                    </div>
+                    <div>
+                        <input 
                             class="range-input"
                             type="range"
                             ${disabled}
                             value="${percentageValue}"
-                            min="${-100}"
-                            max="${100}"
+                            min="-100"
+                            max="100"
                             oninput="
-                                const percentageDiv = this.closest('.cy-node-label-html')?.querySelector('.percentage');
-                                if (percentageDiv) percentageDiv.textContent = this.value + '%';
+                                const percentageDivs = this.closest('.cy-node-label-html')?.querySelectorAll('.percentage');
+                                if (percentageDivs) {
+                                    percentageDivs.forEach(div => {
+                                        div.textContent = this.value + '%';
+                                    })
+                                }
                             "
                             onmouseup="
-                                handleInputChange('${data.id}', ${initialAmount}, ${amountValue},this.value);
+                                handleInputChange('${data.id}', ${initialAmount}, ${amountValue}, this.value);
                                 forceReRenderNode('${data.id}');
-                                updateParentNodes('${data.id}')
+                                updateParentNodes('${data.id}');
                             "
                             onmousedown="event.stopPropagation();"
                             onmousemove="event.stopPropagation();"
                             style="width: 100px; pointer-events: auto; display: none"
-                        />`
-                        }
+                        />
                         <div class="percentage">${percentageValue}%</div>
-                        <div>₩ ${amountValue}</div>
-                        <div>Old Amount: ${initialAmount}</div>
-                        <div>Changed Amount: ${amountValue - initialAmount}</div>
                     </div>
-                  `;
+                    `
+                    }
+                </div>
+                `;
                 },
             },
         ]);
