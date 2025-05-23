@@ -399,19 +399,21 @@ export default function TestPage2() {
                         <div>Unit: 만원</div>
                     </div>
                 
-                    <div style="display: flex; justify-content: space-between;"> 
-                        <div> 
-                            <div>₩ ${amountValue}</div>
+                    <div>₩ ${amountValue}</div>
+                    
                             ${
                                 excludedNames.includes(data.name)
                                     ? ''
                                     : `
-                                        <div>
-                                            <div>Old Amount: ${initialAmount}</div>
-                                            <div>Changed Amount: ${amountValue - initialAmount}</div>
+                                        <div style="display: flex; justify-content: space-between">
+                                            <div>
+                                                <div>Old Amount: ${initialAmount}</div>
+                                                <div>Changed Amount: ${amountValue - initialAmount}</div>
+                                            </div>
+                                            <div>chart</div>
                                         </div>
                                         <div class="range-input" style="display: none;"> 
-                                            <div style="display: flex"> 
+                                            <div style="display: flex;"> 
                                                 <input 
                                             type="range"
                                             ${disabled}
@@ -440,8 +442,6 @@ export default function TestPage2() {
                                         </div>    
                                     `
                             }
-                        </div>
-                    </div>
                 </div>
                 `;
                 },
