@@ -290,8 +290,8 @@ export default function TestPage2() {
                 {
                     selector: 'node',
                     style: {
-                        width: 190,
-                        height: 60,
+                        width: 400,
+                        height: 74,
                         shape: 'rectangle',
                     },
                 },
@@ -320,12 +320,14 @@ export default function TestPage2() {
         const layout = cy
             .layout({
                 name: 'dagre',
-                rankDir: 'RL',
-                nodeSep: 25,
-                rankSep: 80,
-                edgeSep: 60,
+                rankDir: 'RL', // 방향: 오른쪽 → 왼쪽
+                nodeSep: 3, // 같은 레벨 노드 간 거리
+                rankSep: 70, // 부모-자식 노드 간 거리 ← 기존보다 줄임
+                edgeSep: 10,
                 padding: 20,
                 animate: true,
+                animationDuration: 400,
+                animationEasing: 'ease-in-out',
             })
             .run();
 
