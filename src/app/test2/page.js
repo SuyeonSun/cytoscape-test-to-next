@@ -232,6 +232,14 @@ export default function TestPage2() {
                     if (input) input.disabled = true;
                 }
             });
+
+            // historyData 추가
+            if (nodeRef.current[nodeId].historyData.length < 10) {
+                nodeRef.current[nodeId].historyData.push(Number(percentageValue));
+            } else {
+                nodeRef.current[nodeId].historyData.shift();
+                nodeRef.current[nodeId].historyData.push(Number(percentageValue));
+            }
         };
 
         window.updateParentNodes = (nodeId) => {
@@ -261,6 +269,14 @@ export default function TestPage2() {
             ); // TODO: Math.round()
             nodeRef.current[parentNodeId].amount = parentNodeAmount;
             nodeRef.current[parentNodeId].percentage = parentPercentage;
+
+            // historyData 추가
+            if (nodeRef.current[parentNodeId].historyData.length < 10) {
+                nodeRef.current[parentNodeId].historyData.push(parentPercentage);
+            } else {
+                nodeRef.current[parentNodeId].historyData.shift();
+                nodeRef.current[parentNodeId].historyData.push(parentPercentage);
+            }
             forceReRenderNode(parentNodeId);
             updateParentNodes(parentNodeId);
         };
@@ -342,7 +358,10 @@ export default function TestPage2() {
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
-                    const sparkData = [4, 8, 12, 6, 16, 10, 14, 6, 18, 8]; // 
+                    if (ref.historyData === undefined) {
+                        ref.historyData = [];
+                    }
+                    const historyData = ref.historyData;
 
                     return `
                 <div 
@@ -415,7 +434,7 @@ export default function TestPage2() {
                                             <div>
                                                 <div>Last 10 records</div>
                                                 <div class="sparkline" style="display: flex; align-items: flex-end; height: 20px; gap: 2px;">
-                                                ${sparkData
+                                                ${historyData
                                                     .map(
                                                         (h) =>
                                                             `<div style="width: 3px; height: ${h}px; background: orange;"></div>`
