@@ -410,7 +410,10 @@ export default function TestPage2() {
                                                 <div>Old Amount: ${initialAmount}</div>
                                                 <div>Changed Amount: ${amountValue - initialAmount}</div>
                                             </div>
-                                            <div>chart</div>
+                                            <div>
+                                                <div>Last 10 records</div>
+                                                <div>chart</div>
+                                            </div>
                                         </div>
                                         <div class="range-input" style="display: none;"> 
                                             <div style="display: flex;"> 
