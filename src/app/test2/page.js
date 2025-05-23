@@ -420,7 +420,7 @@ export default function TestPage2() {
                         <div>Unit: 백만원</div>
                     </div>
                 
-                    <div>₩ ${amountValue}</div>
+                    <div>₩ ${amountValue.toLocaleString('ko-KR')}</div>
                     
                             ${
                                 excludedNames.includes(data.name)
@@ -428,8 +428,10 @@ export default function TestPage2() {
                                     : `
                                         <div style="display: flex; justify-content: space-between">
                                             <div>
-                                                <div>Old Amt: ${initialAmount}</div>
-                                                <div>Chg Amt: ${amountValue - initialAmount}</div>
+                                                <div>Old Amt: ${initialAmount.toLocaleString('ko-KR')}</div>
+                                                <div>Chg Amt: ${(amountValue - initialAmount).toLocaleString(
+                                                    'ko-KR'
+                                                )}</div>
                                             </div>
                                             <div>
                                                 <div>Last 10 records</div>
