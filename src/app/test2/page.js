@@ -281,6 +281,10 @@ export default function TestPage2() {
             forceReRenderNode(parentNodeId);
             updateParentNodes(parentNodeId);
         };
+
+        window.clickGraphData = (index) => {
+            console.log('===================', index);
+        };
     }, []);
 
     useEffect(() => {
@@ -444,7 +448,13 @@ export default function TestPage2() {
                                                             .map((h, i) => {
                                                                 const color = h >= 0 ? 'orange' : 'transparent';
                                                                 const height = h >= 0 ? Math.min(h * 3, 20) : 0; // TODO: 0.8, 2, 3
-                                                                return `<div style="width: 8px; height: ${height}px; background: ${color};"></div>`;
+                                                                return `<div 
+                                                                    onclick="event.stopPropagation(); clickGraphData(${i})"
+                                                                    style="width: 8px; height: ${height}px; background: ${color}; ${
+                                                                    color === 'transparent'
+                                                                        ? 'pointer-events: none;'
+                                                                        : 'cursor: pointer;'
+                                                                }"></div>`;
                                                             })
                                                             .join('')}
                                                     </div>
@@ -455,7 +465,13 @@ export default function TestPage2() {
                                                                 const color = h < 0 ? 'red' : 'transparent';
                                                                 const height =
                                                                     h < 0 ? Math.min(Math.abs(h * 3), 20) : 0; // TODO: 0.8, 2, 3
-                                                                return `<div style="width: 8px; height: ${height}px; background: ${color};"></div>`;
+                                                                return `<div 
+                                                                    onclick="event.stopPropagation(); clickGraphData(${i})"
+                                                                    style="width: 8px; height: ${height}px; background: ${color}; ${
+                                                                    color === 'transparent'
+                                                                        ? 'pointer-events: none;'
+                                                                        : 'cursor: pointer;'
+                                                                }"></div>`;
                                                             })
                                                             .join('')}
                                                     </div>
