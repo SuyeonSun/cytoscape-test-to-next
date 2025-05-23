@@ -342,6 +342,8 @@ export default function TestPage2() {
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
+                    const sparkData = [4, 8, 12, 6, 16, 10, 14, 6, 18, 8]; // 
+
                     return `
                 <div 
                     class="cy-node-label-html" 
@@ -412,7 +414,14 @@ export default function TestPage2() {
                                             </div>
                                             <div>
                                                 <div>Last 10 records</div>
-                                                <div>chart</div>
+                                                <div class="sparkline" style="display: flex; align-items: flex-end; height: 20px; gap: 2px;">
+                                                ${sparkData
+                                                    .map(
+                                                        (h) =>
+                                                            `<div style="width: 3px; height: ${h}px; background: orange;"></div>`
+                                                    )
+                                                    .join('')}
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="range-input" style="display: none;"> 
