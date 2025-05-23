@@ -409,8 +409,8 @@ export default function TestPage2() {
                                     : `
                                         <div style="display: flex; justify-content: space-between">
                                             <div>
-                                                <div>Old Amount: ${initialAmount}</div>
-                                                <div>Changed Amount: ${amountValue - initialAmount}</div>
+                                                <div>Old Amt: ${initialAmount}</div>
+                                                <div>Chg Amt: ${amountValue - initialAmount}</div>
                                             </div>
                                             <div>
                                                 <div>Last 10 records</div>
@@ -430,8 +430,8 @@ export default function TestPage2() {
                                             type="range"
                                             ${disabled}
                                             value="${percentageValue}"
-                                            min="-100"
-                                            max="100"
+                                            min="-15"
+                                            max="15"
                                             oninput="
                                                 const percentageDivs = this.closest('.cy-node-label-html')?.querySelectorAll('.percentage');
                                                 if (percentageDivs) {
