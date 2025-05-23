@@ -349,14 +349,13 @@ export default function TestPage2() {
                     onmouseover="showInput('${data.id}');"
                     onmouseout="hideInput('${data.id}');"
                     style="
-                        text-align:center; 
                         pointer-events:auto; 
                         background: white;
                         border: 2px solid #90caf9;
                         border-radius: 10px;
                         box-shadow: 0 1px 5px rgba(0,0,0,0.1);
                         padding: 10px;
-                        width: 200px;
+                        width: 400px;
                         position: relative;
                     "
                 >  
@@ -389,50 +388,60 @@ export default function TestPage2() {
                     }
                 
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>${data.name}</div>
-                        ${!excludedNames.includes(data.name) ? `<div class="percentage">${percentageValue}%</div>` : ''}
+                        <div style="display: flex;">
+                            <div style="margin-right: 10px">${data.name}</div>
+                            ${
+                                !excludedNames.includes(data.name)
+                                    ? `<div class="percentage">${percentageValue}%</div>`
+                                    : ''
+                            }
+                        </div>     
                         <div>Unit: 만원</div>
                     </div>
                 
-                    <div>₩ ${amountValue}</div>
-                
-                    ${
-                        excludedNames.includes(data.name)
-                            ? ''
-                            : `
-                    <div>
-                        <div>Old Amount: ${initialAmount}</div>
-                        <div>Changed Amount: ${amountValue - initialAmount}</div>
+                    <div style="display: flex; justify-content: space-between;"> 
+                        <div> 
+                            <div>₩ ${amountValue}</div>
+                            ${
+                                excludedNames.includes(data.name)
+                                    ? ''
+                                    : `
+                                        <div>
+                                            <div>Old Amount: ${initialAmount}</div>
+                                            <div>Changed Amount: ${amountValue - initialAmount}</div>
+                                        </div>
+                                        <div class="range-input" style="display: none;"> 
+                                            <div style="display: flex"> 
+                                                <input 
+                                            type="range"
+                                            ${disabled}
+                                            value="${percentageValue}"
+                                            min="-100"
+                                            max="100"
+                                            oninput="
+                                                const percentageDivs = this.closest('.cy-node-label-html')?.querySelectorAll('.percentage');
+                                                if (percentageDivs) {
+                                                    percentageDivs.forEach(div => {
+                                                    div.textContent = this.value + '%';
+                                                })}"
+                                            onmouseup="
+                                                handleInputChange('${
+                                                    data.id
+                                                }', ${initialAmount}, ${amountValue}, this.value);
+                                                forceReRenderNode('${data.id}');
+                                                updateParentNodes('${data.id}');
+                                            "
+                                            onmousedown="event.stopPropagation();"
+                                            onmousemove="event.stopPropagation();"
+                                            style="width: 100px; pointer-events: auto;"
+                                                />
+                                                <div class="percentage">${percentageValue}%</div>
+                                            </div>
+                                        </div>    
+                                    `
+                            }
+                        </div>
                     </div>
-                    <div>
-                        <input 
-                            class="range-input"
-                            type="range"
-                            ${disabled}
-                            value="${percentageValue}"
-                            min="-100"
-                            max="100"
-                            oninput="
-                                const percentageDivs = this.closest('.cy-node-label-html')?.querySelectorAll('.percentage');
-                                if (percentageDivs) {
-                                    percentageDivs.forEach(div => {
-                                        div.textContent = this.value + '%';
-                                    })
-                                }
-                            "
-                            onmouseup="
-                                handleInputChange('${data.id}', ${initialAmount}, ${amountValue}, this.value);
-                                forceReRenderNode('${data.id}');
-                                updateParentNodes('${data.id}');
-                            "
-                            onmousedown="event.stopPropagation();"
-                            onmousemove="event.stopPropagation();"
-                            style="width: 100px; pointer-events: auto; display: none"
-                        />
-                        <div class="percentage">${percentageValue}%</div>
-                    </div>
-                    `
-                    }
                 </div>
                 `;
                 },
