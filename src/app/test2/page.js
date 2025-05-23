@@ -433,13 +433,27 @@ export default function TestPage2() {
                                             </div>
                                             <div>
                                                 <div>Last 10 records</div>
-                                                <div class="sparkline" style="display: flex; align-items: flex-end; height: 20px; gap: 2px;">
-                                                ${historyData
-                                                    .map(
-                                                        (h) =>
-                                                            `<div style="width: 3px; height: ${h}px; background: orange;"></div>`
-                                                    )
-                                                    .join('')}
+                                                <div class="history-graph" style="height: 40px; display: flex; flex-direction: column;">
+                                                    <div style="height: 19px; display: flex; align-items: flex-end; gap: 2px;">
+                                                        ${historyData
+                                                            .map((h) => {
+                                                                const color = h >= 0 ? 'orange' : 'transparent';
+                                                                const height = h >= 0 ? Math.min(h * 3, 20) : 0; // TODO: 0.8, 2, 3
+                                                                return `<div style="width: 3px; height: ${height}px; background: ${color};"></div>`;
+                                                            })
+                                                            .join('')}
+                                                    </div>
+                                                    <div style="height: 2px; background: #999;"></div>
+                                                    <div style="height: 19px; display: flex; align-items: flex-start; gap: 2px;">
+                                                        ${historyData
+                                                            .map((h) => {
+                                                                const color = h < 0 ? 'red' : 'transparent';
+                                                                const height =
+                                                                    h < 0 ? Math.min(Math.abs(h * 3), 20) : 0; // TODO: 0.8, 2, 3
+                                                                return `<div style="width: 3px; height: ${height}px; background: ${color};"></div>`;
+                                                            })
+                                                            .join('')}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
