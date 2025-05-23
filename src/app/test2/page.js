@@ -338,7 +338,7 @@ export default function TestPage2() {
                     const ref = nodeRef.current?.[data.id] || {};
                     if (ref.isDisplay === false) return '';
 
-                    const initialAmount = Math.round(parseNeo4jInt(data.amount));
+                    const initialAmount = Math.round(parseNeo4jInt(data.amount) / 1_000_000); // TODO: 백만원 단위
                     if (ref.initialAmount === undefined) {
                         ref.initialAmount = initialAmount;
                     }
@@ -417,7 +417,7 @@ export default function TestPage2() {
                                     : ''
                             }
                         </div>     
-                        <div>Unit: 만원</div>
+                        <div>Unit: 백만원</div>
                     </div>
                 
                     <div>₩ ${amountValue}</div>
