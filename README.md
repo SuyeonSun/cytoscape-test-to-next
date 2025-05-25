@@ -9,3 +9,4 @@
 | feature/9     | VDT 기능 (input type="range" 적용) |
 | feature/10     | context cxtmenu 바깥 클릭하면 닫히는 기능, showEdge() 함수 수정 (animation 두번 적용되지 않도록), node간 간격 등 수정 |
 | feature/11     | VDT 기능 추가 (토글 버튼, hover 시 input 나타나는 기능) |
+| feature/12     | VDT 기능 추가 (historyData 기능) |
