@@ -213,21 +213,13 @@ export default function TestPage2() {
       }
     };
 
-    window.handleInputChange = (
-      nodeId,
-      initialAmount,
-      amountValue,
-      percentageValue
-    ) => {
+    window.handleInputChange = (nodeId, initialAmount, percentageValue) => {
       const cy = cyInstanceRef.current;
       if (!cy || !nodeId) return;
 
       if (!nodeRef.current[nodeId]) {
         nodeRef.current[nodeId] = {};
       }
-
-      // 직전 값 저장
-      nodeRef.current[nodeId].beforeAmount = amountValue;
 
       // 현재 값 계산 및 저장
       const calculatedAmount =
@@ -295,8 +287,12 @@ export default function TestPage2() {
       updateParentNodes(parentNodeId);
     };
 
-    window.clickGraphData = (index) => {
-      console.log("===================", index);
+    window.clickHistoryData = (nodeId, index) => {
+      const initialAmount = nodeRef.current[nodeId].initialAmount;
+      const percentage = nodeRef.current[nodeId].historyData[index];
+      handleInputChange(nodeId, initialAmount, percentage);
+      forceReRenderNode(nodeId);
+      updateParentNodes(nodeId);
     };
   }, []);
 
@@ -484,7 +480,9 @@ export default function TestPage2() {
                                                                 : 0; // TODO: 0.8, 2, 3
                                                             return `<div 
                                                                     onmousedown="event.stopPropagation();"
-                                                                    onclick="event.stopPropagation(); clickGraphData(${i})"
+                                                                    onclick="event.stopPropagation(); clickHistoryData('${
+                                                                      data.id
+                                                                    }', ${i})"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                               color ===
                                                               "transparent"
@@ -513,7 +511,9 @@ export default function TestPage2() {
                                                                 : 0; // TODO: 0.8, 2, 3
                                                             return `<div 
                                                                     onmousedown="event.stopPropagation();"
-                                                                    onclick="event.stopPropagation(); clickGraphData(${i})"
+                                                                    onclick="event.stopPropagation(); clickHistoryData('${
+                                                                      data.id
+                                                                    }', ${i})"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                               color ===
                                                               "transparent"
@@ -543,7 +543,7 @@ export default function TestPage2() {
                                             onmouseup="
                                                 handleInputChange('${
                                                   data.id
-                                                }', ${initialAmount}, ${amountValue}, this.value);
+                                                }', ${initialAmount}, this.value);
                                                 forceReRenderNode('${data.id}');
                                                 updateParentNodes('${data.id}');
                                             "
