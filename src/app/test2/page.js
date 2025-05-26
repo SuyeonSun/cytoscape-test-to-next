@@ -293,6 +293,31 @@ export default function TestPage2() {
             forceReRenderNode(parentNodeId);
             updateParentNodes(parentNodeId);
         };
+
+        window.clickHistoryData = (nodeId, index) => {
+            const percentage = nodeRef.current[nodeId].historyData[index];
+
+            const barElement = document.querySelectorAll(
+                `.cy-node-label-html[data-node-id="${nodeId}"] .history-graph div`
+            )[index];
+            const tooltip = document.getElementById('tooltip');
+
+            if (!barElement || !tooltip) return;
+
+            const rect = barElement.getBoundingClientRect();
+
+            tooltip.textContent = `${percentage}%`;
+            const mouseX = event.clientX + window.scrollX;
+            const mouseY = event.clientY + window.scrollY;
+
+            tooltip.style.left = `${mouseX + 10}px`; // 약간 오른쪽
+            tooltip.style.top = `${mouseY - 10}px`; // 약간 위쪽
+            tooltip.style.display = 'block';
+
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 500);
+        };
     }, []);
 
     useEffect(() => {
@@ -449,7 +474,7 @@ export default function TestPage2() {
                                                 )}</div>
                                             </div>
                                             <div>
-                                                <div>Last 10 records</div>
+                                                <div>Last 10 records</div>                                        
                                                 <div class="history-graph" style="height: 40px; display: flex; flex-direction: column;">
                                                     <div style="height: 19px; display: flex; align-items: flex-end; gap: 2px;">
                                                         ${scaledHistoryData
@@ -457,6 +482,8 @@ export default function TestPage2() {
                                                                 const color = h >= 0 ? 'orange' : 'transparent';
                                                                 const height = h > 0 ? h : 0;
                                                                 return `<div 
+                                                                    onmousedown="event.stopPropagation(); 
+                                                                    clickHistoryData('${data.id}', ${i});"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
                                                                         ? 'pointer-events: none;'
@@ -472,6 +499,8 @@ export default function TestPage2() {
                                                                 const color = h < 0 ? 'red' : 'transparent';
                                                                 const height = h < 0 ? -h : 0;
                                                                 return `<div 
+                                                                    onmousedown="event.stopPropagation(); 
+                                                                    clickHistoryData('${data.id}', ${i});"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
                                                                         ? 'pointer-events: none;'
@@ -625,6 +654,21 @@ export default function TestPage2() {
                     height: '600px',
                     border: '1px solid #eee',
                     margin: '20px',
+                }}
+            />
+            <div
+                id="tooltip"
+                style={{
+                    position: 'absolute',
+                    backgroundColor: '#fff',
+                    border: '1px solid #ccc',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+                    pointerEvents: 'none',
+                    display: 'none',
+                    zIndex: 1000,
+                    fontSize: '12px',
                 }}
             />
         </>
