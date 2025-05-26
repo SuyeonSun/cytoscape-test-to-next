@@ -294,7 +294,7 @@ export default function TestPage2() {
             updateParentNodes(parentNodeId);
         };
 
-        window.clickHistoryData = (nodeId, index) => {
+        window.clickHistoryData = (nodeId, index, event) => {
             const percentage = nodeRef.current[nodeId].historyData[index];
 
             const barElement = document.querySelectorAll(
@@ -483,7 +483,7 @@ export default function TestPage2() {
                                                                 const height = h > 0 ? h : 0;
                                                                 return `<div 
                                                                     onmousedown="event.stopPropagation(); 
-                                                                    clickHistoryData('${data.id}', ${i});"
+                                                                    clickHistoryData('${data.id}', ${i}, event);"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
                                                                         ? 'pointer-events: none;'
@@ -500,7 +500,7 @@ export default function TestPage2() {
                                                                 const height = h < 0 ? -h : 0;
                                                                 return `<div 
                                                                     onmousedown="event.stopPropagation(); 
-                                                                    clickHistoryData('${data.id}', ${i});"
+                                                                    clickHistoryData('${data.id}', ${i}, event);"
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
                                                                         ? 'pointer-events: none;'
