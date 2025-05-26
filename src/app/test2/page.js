@@ -180,7 +180,7 @@ export default function TestPage2() {
                     panBy: { x: -60, y: 0 },
                     duration: 400,
                     easing: 'ease-in-out',
-                }); 
+                });
             }
             ref.expanded = !ref.expanded;
 
@@ -303,7 +303,7 @@ export default function TestPage2() {
                 {
                     selector: 'node',
                     style: {
-                        width: 400,
+                        width: 380,
                         height: 74,
                         shape: 'rectangle',
                     },
@@ -335,7 +335,7 @@ export default function TestPage2() {
                 name: 'dagre',
                 rankDir: 'RL', // 방향: 오른쪽 → 왼쪽
                 nodeSep: 3, // 같은 레벨 노드 간 거리
-                rankSep: 70, // 부모, 자식 노드 간 거리 
+                rankSep: 70, // 부모, 자식 노드 간 거리
                 edgeSep: 10,
                 padding: 20,
                 animate: true,
@@ -424,7 +424,7 @@ export default function TestPage2() {
                     }
                 
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex;">
+                        <div style="display: flex; justify-content: center; align-items: center;">
                             <div style="margin-right: 10px">${data.name}</div>
                             ${
                                 !excludedNames.includes(data.name)
@@ -465,7 +465,7 @@ export default function TestPage2() {
                                                             })
                                                             .join('')}
                                                     </div>
-                                                    <div style="height: 2px; background: #999;"></div>
+                                                    <div style="height: 2px;"></div>
                                                     <div style="height: 19px; display: flex; align-items: flex-start; gap: 2px;">
                                                         ${scaledHistoryData
                                                             .map((h, i) => {
@@ -484,9 +484,9 @@ export default function TestPage2() {
                                             </div>
                                         </div>
                                         <div class="range-input" style="display: none;"> 
-                                            <div style="display: flex;"> 
+                                            <div style="display: flex; justify-content: center; align-items: center"> 
                                                 <div style="margin-right: 10px">
-                                                    <button>KEEP</button>
+                                                    <button style="padding: 3px 3px 3px 3px">KEEP</button>
                                                 </div>
                                                 <input 
                                             type="range"
@@ -507,7 +507,7 @@ export default function TestPage2() {
                                             "
                                             onmousedown="event.stopPropagation();"
                                             onmousemove="event.stopPropagation();"
-                                            style="width: 100px; pointer-events: auto;"
+                                            style="width: 100px; margin-right: 10px; pointer-events: auto;"
                                             />
                                                 <div class="percentage">${percentageValue}%</div>
                                             </div>
