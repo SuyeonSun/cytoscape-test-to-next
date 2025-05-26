@@ -200,13 +200,25 @@ export default function TestPage2() {
         };
 
         window.updateHistoryData = (nodeId) => {
-            const percentage = nodeRef.current[nodeId].percentage;
-            if (nodeRef.current[nodeId].historyData.length < 10) {
-                nodeRef.current[nodeId].historyData.push(percentage);
+            const ref = nodeRef.current[nodeId];
+            const percentage = ref.percentage;
+            if (ref.historyData.length < 10) {
+                ref.historyData.push(percentage);
             } else {
-                nodeRef.current[nodeId].historyData.shift();
-                nodeRef.current[nodeId].historyData.push(percentage);
+                ref.historyData.shift();
+                ref.historyData.push(percentage);
             }
+
+            // [-20, 20, -30, 30, 5]
+            const maxAbs = Math.max(...ref.historyData.map((h) => Math.abs(h)));
+            const isNeedAutoScale = 19 < maxAbs;
+            const scale = isNeedAutoScale ? 19 / maxAbs : 1;
+
+            ref.scaledHistoryData = ref.historyData.map((h) => {
+                if (h === 0) return 0;
+                const height = Math.max(Math.abs(h) * scale, 1);
+                return h > 0 ? height : -height;
+            });
         };
 
         window.handleInputChange = (nodeId, initialAmount, percentageValue) => {
@@ -358,10 +370,10 @@ export default function TestPage2() {
 
                     const excludedNames = ['액티비티수차합', '액티비티단가합', '생산입고', '공정출고', '비용계획합'];
 
-                    if (ref.historyData === undefined) {
+                    if (!ref.historyData) {
                         ref.historyData = [];
                     }
-                    const historyData = ref.historyData;
+                    const scaledHistoryData = ref.scaledHistoryData ? ref.scaledHistoryData : [];
 
                     return `
                 <div 
@@ -437,10 +449,10 @@ export default function TestPage2() {
                                                 <div>Last 10 records</div>
                                                 <div class="history-graph" style="height: 40px; display: flex; flex-direction: column;">
                                                     <div style="height: 19px; display: flex; align-items: flex-end; gap: 2px;">
-                                                        ${historyData
+                                                        ${scaledHistoryData
                                                             .map((h, i) => {
                                                                 const color = h >= 0 ? 'orange' : 'transparent';
-                                                                const height = h >= 0 ? Math.min(h * 3, 20) : 0; // TODO: 0.8, 2, 3
+                                                                const height = h > 0 ? h : 0;
                                                                 return `<div 
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
@@ -452,11 +464,10 @@ export default function TestPage2() {
                                                     </div>
                                                     <div style="height: 2px; background: #999;"></div>
                                                     <div style="height: 19px; display: flex; align-items: flex-start; gap: 2px;">
-                                                        ${historyData
+                                                        ${scaledHistoryData
                                                             .map((h, i) => {
                                                                 const color = h < 0 ? 'red' : 'transparent';
-                                                                const height =
-                                                                    h < 0 ? Math.min(Math.abs(h * 3), 20) : 0; // TODO: 0.8, 2, 3
+                                                                const height = h < 0 ? -h : 0;
                                                                 return `<div 
                                                                     style="width: 8px; height: ${height}px; background: ${color}; ${
                                                                     color === 'transparent'
