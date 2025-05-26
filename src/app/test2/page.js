@@ -12,6 +12,7 @@ const LAYOUT_MODES = Object.freeze({
     MINDMAP: 2,
 });
 
+// Graph1, Graph2 동일 로직 사용
 const showNode = (node, layoutMode, duration = 800) => {
     node.show();
     node.data('isHidden', false);
@@ -24,6 +25,7 @@ const showNode = (node, layoutMode, duration = 800) => {
     }
 };
 
+// Graph1, Graph2 동일 로직 사용
 const hideNode = (node, layoutMode) => {
     node.hide();
     if (layoutMode === LAYOUT_MODES.MINDMAP) {
@@ -32,6 +34,7 @@ const hideNode = (node, layoutMode) => {
     node.data('isHidden', true);
 };
 
+// Graph1, Graph2 동일 로직 사용
 const showEdge = (edge, layoutMode, duration = 800) => {
     if (edge.data('isHidden')) {
         edge.show();
@@ -47,6 +50,7 @@ const showEdge = (edge, layoutMode, duration = 800) => {
     }
 };
 
+// Graph1, Graph2 동일 로직 사용
 const hideEdge = (edge, layoutMode) => {
     edge.hide();
     if (layoutMode === LAYOUT_MODES.MINDMAP) {
@@ -71,6 +75,7 @@ export default function TestPage2() {
         setGraphData(data);
     };
 
+    // Graph2에서만 사용 가능
     const expandNode = (nodeId) => {
         const cy = cyInstanceRef.current;
         if (!cy || !nodeId) return;
@@ -121,6 +126,7 @@ export default function TestPage2() {
         }
     };
 
+    // Graph2에서만 사용 가능
     const collapseNode = (nodeId) => {
         const cy = cyInstanceRef.current;
         if (!cy || !nodeId) return;
@@ -135,11 +141,9 @@ export default function TestPage2() {
             if (visited.has(nodeId)) continue;
             visited.add(nodeId);
 
-            // const incomingEdges = node.connectedEdges().filter((edge) => edge.target().id() === nodeId);
             const incomers = node.incomers('edge');
 
             incomers.forEach((edge) => {
-                // incomingEdges.forEach((edge) => {
                 const source = edge.source();
 
                 hideEdge(edge, 2);
@@ -176,7 +180,7 @@ export default function TestPage2() {
                     panBy: { x: -60, y: 0 },
                     duration: 400,
                     easing: 'ease-in-out',
-                }); // cy.panBy({ x: -50, y: 0 });
+                }); 
             }
             ref.expanded = !ref.expanded;
 
@@ -209,7 +213,6 @@ export default function TestPage2() {
                 ref.historyData.push(percentage);
             }
 
-            // [-20, 20, -30, 30, 5]
             const maxAbs = Math.max(...ref.historyData.map((h) => Math.abs(h)));
             const isNeedAutoScale = 19 < maxAbs;
             const scale = isNeedAutoScale ? 19 / maxAbs : 1;
@@ -332,7 +335,7 @@ export default function TestPage2() {
                 name: 'dagre',
                 rankDir: 'RL', // 방향: 오른쪽 → 왼쪽
                 nodeSep: 3, // 같은 레벨 노드 간 거리
-                rankSep: 70, // 부모-자식 노드 간 거리 ← 기존보다 줄임
+                rankSep: 70, // 부모, 자식 노드 간 거리 
                 edgeSep: 10,
                 padding: 20,
                 animate: true,
@@ -538,9 +541,6 @@ export default function TestPage2() {
 
         layout.on('layoutstop', () => {
             roots.forEach((root) => {
-                // root.show();
-                // root.data('isHidden', false);
-                // root.animate({ style: { opacity: 1 }, duration: 5 });
                 showNode(root, 2);
                 const rootId = root.id();
                 nodeRef.current[rootId].isDisplay = true;
@@ -608,7 +608,7 @@ export default function TestPage2() {
                     node.position({ x: 2556, y: -40 });
                 }
 
-                // console.log(name, '----', node.position());
+                // console.log(name, node.position());
             });
         });
 
@@ -617,14 +617,6 @@ export default function TestPage2() {
 
     return (
         <>
-            {/* <input
-                type="range"
-                min={0}
-                max={10}
-                onInput={(e) => {
-                    console.log('normal input slider value', e.currentTarget.value);
-                }}
-            /> */}
             <div
                 id="cy"
                 ref={cyRef}
