@@ -95,18 +95,29 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                         'text-valign': 'center',
                         'text-halign': 'center',
                         'font-size': '4px',
-                        backgroundColor: (ele) => {
-                            const level = parseNeo4jInt(ele.data('level'));
-                            if (level === 0) return '#e57373';
-                            else if (level === 1) return '#90a4ce';
-                            else if (level === 2) return '#26A69A';
-                            else if (level === 3) return '#64b5f6';
-                            else if (level === 4) return '#B2DFDB';
-                            else return '#ddd'; // fallback
+                        // backgroundColor: (ele) => {
+                        //     const level = parseNeo4jInt(ele.data('level'));
+                        //     if (level === 0) return '#e57373';
+                        //     else if (level === 1) return '#90a4ce';
+                        //     else if (level === 2) return '#26A69A';
+                        //     else if (level === 3) return '#64b5f6';
+                        //     else if (level === 4) return '#B2DFDB';
+                        //     else return '#ddd'; // fallback
+                        // },
+                        'border-color': '#2a9d8f',
+                        'border-width': 1.5,
+                        'border-style': 'solid',
+                        'background-image': (ele) => {
+                            const name = ele.data('name');
+                            if (name === '매출이익') return '/images/node-bg-1.png';
                         },
+                        'background-fit': 'cover',
                         color: '#333',
                         width: '20px',
                         height: '20px',
+                        'text-background-color': '#64b5f6',
+                        'text-background-opacity': 1,
+                        'text-background-shape': 'rectangle',
                         'text-wrap': 'wrap',
                         'text-max-width': '20px',
                     },
