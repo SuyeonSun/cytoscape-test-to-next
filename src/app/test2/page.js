@@ -173,7 +173,7 @@ export default function TestPage2() {
             } else {
                 expandNode(nodeId);
                 cy.animate({
-                    panBy: { x: -50, y: 0 },
+                    panBy: { x: -60, y: 0 },
                     duration: 400,
                     easing: 'ease-in-out',
                 }); // cy.panBy({ x: -50, y: 0 });
@@ -318,7 +318,7 @@ export default function TestPage2() {
                         'target-arrow-color': '#ccc',
                         'curve-style': 'round-taxi',
                         'taxi-direction': 'leftward',
-                        'taxi-turn': 20,
+                        'taxi-turn': 100,
                         'taxi-turn-min-distance': 10,
                     },
                 },
@@ -482,7 +482,7 @@ export default function TestPage2() {
                                         </div>
                                         <div class="range-input" style="display: none;"> 
                                             <div style="display: flex;"> 
-                                                <div>
+                                                <div style="margin-right: 10px">
                                                     <button>KEEP</button>
                                                 </div>
                                                 <input 
@@ -517,6 +517,11 @@ export default function TestPage2() {
             },
         ]);
 
+        cy.on('tap', 'node', (event) => {
+            const node = event.target;
+            console.log('✅ 노드 위치:', node.position());
+        });
+
         cy.nodes().forEach((node) => {
             const nodeId = node.id();
             if (!nodeRef.current[nodeId]) nodeRef.current[nodeId] = {};
@@ -547,6 +552,64 @@ export default function TestPage2() {
             });
 
             cy.center(roots);
+
+            cy.nodes().forEach((node) => {
+                const name = node.data('name');
+
+                if (name === '매출원가') {
+                    node.position({ x: 800, y: 500 });
+                }
+
+                if (name === '매출액') {
+                    node.position({ x: 800, y: 800 });
+                }
+
+                if (name === '당기제품제조원가') {
+                    node.position({ x: 1347.24006, y: -8.5279 });
+                }
+
+                if (name === '기초재고') {
+                    node.position({ x: 1379.8862, y: 149.7574 });
+                }
+
+                if (name === '기말재고') {
+                    node.position({ x: 1409.49807, y: 303.7961 });
+                }
+
+                if (name === 'FERT100s') {
+                    node.position({ x: 1409.49807, y: 707.432 });
+                }
+
+                if (name === 'FERT200s') {
+                    node.position({ x: 1409.49807, y: 905.5379 });
+                }
+
+                if (name === '당기제조비용') {
+                    node.position({ x: 1953.72918, y: -265.6079 });
+                }
+
+                if (name === '재공품') {
+                    node.position({ x: 1987.308, y: -105.632 });
+                }
+
+                if (name === '액티비티단수차') {
+                    node.position({ x: 1987.308, y: 59 });
+                }
+
+                if (name === '액티비티배부') {
+                    node.position({ x: 1953.72918, y: 228.366 });
+                }
+
+                if (name === '생산입고') {
+                    node.position({ x: 2556, y: -174 });
+                }
+
+                if (name === '공정출고') {
+                    node.position({ x: 2556, y: -40 });
+                }
+
+                // console.log(name, '----', node.position());
+            });
         });
 
         cyInstanceRef.current = cy;
