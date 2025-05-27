@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { graphDataAtom, metricMapAtom } from '@/store/graphAtoms';
 import { parseNeo4jInt } from '@/utils/neo4jUtils';
-import { getMetricKey, updateMetricDataHelper, useUpdateMetricData } from '@/utils/metricHelper';
+import { getMetricKey, updateMetricDataHelper, useUpdateMetricData } from '@/helpers/metricHelper';
 
 const LAYOUT_MODES = Object.freeze({
     RADIAL: 0,
