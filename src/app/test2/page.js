@@ -468,8 +468,8 @@ export default function TestPage2() {
                                     : `
                                         <div style="display: flex; justify-content: space-between">
                                             <div>
-                                                <div>Old Amt: ${initialAmount.toLocaleString('ko-KR')}</div>
-                                                <div>Chg Amt: ${(amountValue - initialAmount).toLocaleString(
+                                                <div>Old Amt: ₩ ${initialAmount.toLocaleString('ko-KR')}</div>
+                                                <div>Chg Amt: ₩ ${(amountValue - initialAmount).toLocaleString(
                                                     'ko-KR'
                                                 )}</div>
                                             </div>
@@ -648,7 +648,7 @@ export default function TestPage2() {
                 if (name === '원재료비') {
                     node.position({ x: 2514.79, y: -595.7439 });
                 }
-                
+
                 console.log(name, node.position());
             });
         });
