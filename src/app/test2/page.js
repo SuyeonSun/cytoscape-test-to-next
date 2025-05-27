@@ -339,6 +339,9 @@ export default function TestPage2() {
                         label: (ele) => {
                             return `${ele.data('role') === 'negative' ? '-' : '+'}`;
                         },
+                        color: (ele) => {
+                            return ele.data('role') === 'negative' ? 'red' : 'black';
+                        },
                         width: 1,
                         'font-size': '30px',
                         'line-color': '#ccc',
@@ -467,11 +470,19 @@ export default function TestPage2() {
                                     ? ''
                                     : `
                                         <div style="display: flex; justify-content: space-between">
-                                            <div>
-                                                <div>Old Amt: ₩ ${initialAmount.toLocaleString('ko-KR')}</div>
-                                                <div>Chg Amt: ₩ ${(amountValue - initialAmount).toLocaleString(
-                                                    'ko-KR'
-                                                )}</div>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <div style="display: flex; justify-content: space-between;">
+                                                    <div>Old Amt:</div>
+                                                    <div style="text-align: right; min-width: 100px;">₩ ${initialAmount.toLocaleString(
+                                                        'ko-KR'
+                                                    )}</div>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between;">
+                                                    <div>Chg Amt:</div>
+                                                    <div style="text-align: right; min-width: 100px;">₩ ${(
+                                                        amountValue - initialAmount
+                                                    ).toLocaleString('ko-KR')}</div>
+                                                </div>    
                                             </div>
                                             <div>
                                                 <div>Last 10 records</div>                                        
