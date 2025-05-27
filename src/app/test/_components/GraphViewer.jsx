@@ -93,6 +93,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                     style: {
                         label: (ele) => ele.data('name'),
                         'text-valign': 'top',
+                        'text-margin-y': -1.5,
                         'text-halign': 'center',
                         'font-size': '4px',
                         // backgroundColor: (ele) => {
@@ -129,9 +130,9 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                         color: '#333',
                         width: '20px',
                         height: '20px',
-                        'text-background-color': '#64b5f6',
-                        'text-background-opacity': 1,
-                        'text-background-shape': 'rectangle',
+                        // 'text-background-color': '#64b5f6',
+                        // 'text-background-opacity': 1,
+                        // 'text-background-shape': 'rectangle',
                         'text-wrap': 'wrap',
                         'text-max-width': '20px',
                     },
