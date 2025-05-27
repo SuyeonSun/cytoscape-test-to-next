@@ -3,8 +3,9 @@
 import cytoscape from '@/lib/cytoscapeWithExtensions';
 import { useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
-import { graphDataAtom } from '@/store/graphAtoms';
+import { graphDataAtom, metricMapAtom } from '@/store/graphAtoms';
 import { parseNeo4jInt } from '@/utils/neo4jUtils';
+import { getMetricKey, updateMetricDataHelper, useUpdateMetricData } from '@/utils/metricHelper';
 
 const LAYOUT_MODES = Object.freeze({
     RADIAL: 0,
@@ -59,10 +60,11 @@ const hideEdge = (edge, layoutMode) => {
     edge.data('isHidden', true);
 };
 
-export default function TestPage2() {
+export default function VdtGraph() {
     const cyRef = useRef(null);
     const cyInstanceRef = useRef(null);
     const [graphData, setGraphData] = useAtom(graphDataAtom);
+    const [, setMetricData] = useAtom(metricMapAtom);
     const nodeRef = useRef({});
 
     const loadGraph = async (query = null) => {
@@ -165,6 +167,11 @@ export default function TestPage2() {
             const node = cy.getElementById(nodeId);
             node.addClass('force-re-render');
             node.removeClass('force-re-render');
+
+            // metric card 정보 업데이트
+            const name = node.data('name');
+            const amount = nodeRef.current[nodeId].amount;
+            updateMetricDataHelper(name, amount, setMetricData);
         };
 
         window.handleToggleClick = (nodeId) => {
@@ -381,6 +388,8 @@ export default function TestPage2() {
                     const ref = nodeRef.current?.[data.id] || {};
                     if (ref.isDisplay === false) return '';
 
+                    const node = cy.getElementById(data.id);
+
                     const initialAmount = Math.round(parseNeo4jInt(data.amount) / 1_000_000); // TODO: 백만원 단위
                     if (ref.initialAmount === undefined) {
                         ref.initialAmount = initialAmount;
@@ -395,7 +404,6 @@ export default function TestPage2() {
                     const expanded = ref.expanded === true;
                     const toggleSymbol = expanded ? '&lt;' : '&gt;';
 
-                    const node = cy.getElementById(data.id);
                     const allChildNodes = node.predecessors('node');
                     const isLeaf = allChildNodes.length === 0;
 
@@ -578,6 +586,13 @@ export default function TestPage2() {
         });
 
         const roots = cy.nodes().filter((node) => node.outgoers('edge').length === 0);
+
+        // metric card 정보 업데이트
+        cy.nodes().forEach((node) => {
+            const name = node.data('name');
+            const amount = Math.round(parseNeo4jInt(node.data('amount')) / 1_000_000);
+            updateMetricDataHelper(name, amount, setMetricData);
+        });
 
         layout.on('layoutstop', () => {
             roots.forEach((root) => {
