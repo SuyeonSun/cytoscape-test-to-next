@@ -637,7 +637,19 @@ export default function TestPage2() {
                     node.position({ x: 2556, y: -40 });
                 }
 
-                // console.log(name, node.position());
+                if (name === '가공비') {
+                    node.position({ x: 2586.428, y: -265.6079 });
+                }
+
+                if (name === '부재료비') {
+                    node.position({ x: 2549.776, y: -434.716 });
+                }
+
+                if (name === '원재료비') {
+                    node.position({ x: 2514.79, y: -595.7439 });
+                }
+                
+                console.log(name, node.position());
             });
         });
 

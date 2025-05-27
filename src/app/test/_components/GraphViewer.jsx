@@ -92,7 +92,7 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                     selector: 'node',
                     style: {
                         label: (ele) => ele.data('name'),
-                        'text-valign': 'center',
+                        'text-valign': 'top',
                         'text-halign': 'center',
                         'font-size': '4px',
                         // backgroundColor: (ele) => {
@@ -104,12 +104,26 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                         //     else if (level === 4) return '#B2DFDB';
                         //     else return '#ddd'; // fallback
                         // },
+                        backgroundColor: '#FFF',
                         'border-color': '#2a9d8f',
                         'border-width': 1.5,
                         'border-style': 'solid',
                         'background-image': (ele) => {
                             const name = ele.data('name');
-                            if (name === '매출이익') return '/images/node-bg-1.png';
+                            if (name === '매출이익') return '/images/img1.png';
+                            if (name === '매출원가') return '/images/img2.png';
+                            if (name === '당기제품제조원가') return '/images/img3.png';
+                            if (name === '기초재고') return '/images/img4.png';
+                            if (name === '기말재고') return '/images/img5.png';
+                            if (name === 'FERT100s') return '/images/img6.png';
+                            if (name === 'FERT200s') return '/images/img7.png';
+                            if (name === '당기제조비용') return '/images/img8.png';
+                            if (name === '재공품') return '/images/img9.png';
+                            if (name === '액티비티단수차') return '/images/img10.png';
+                            if (name === '액티비티배부') return '/images/img11.png';
+                            if (name === '생산입고') return '/images/img12.png';
+                            if (name === '공정출고') return '/images/img13.png';
+                            if (name === '비용계획합') return '/images/img14.png';
                         },
                         'background-fit': 'cover',
                         color: '#333',
@@ -125,13 +139,13 @@ export default function GraphViewer({ onReady, onHover, onUnhover }) {
                 {
                     selector: 'edge',
                     style: {
-                        // label: (ele) => {
-                        //     const type = ele.data('type') || '';
-                        //     const amount = parseNeo4jInt(ele.data('amount'));
-                        //     return `${type}\n${
-                        //         ele.data('role') === 'negative' ? '(-)' : '(+)'
-                        //     } ${formatAmountWithMajorUnits(amount)}`;
-                        // },
+                        label: (ele) => {
+                            const type = ele.data('type') || '';
+                            const amount = parseNeo4jInt(ele.data('amount'));
+                            return `${type}\n${
+                                ele.data('role') === 'negative' ? '(-)' : '(+)'
+                            } ${formatAmountWithMajorUnits(amount)}`;
+                        },
                         width: 0.4,
                         'text-wrap': 'wrap',
                         'line-color': '#ccc',
